@@ -17,28 +17,20 @@ func Scrape(req model.Request) (model.Response, error) {
 	resp := model.Response{}
 	resp.TaskID = req.TaskID
 	resp.Body = body
-	if err != nil {
-		resp.Error = err.Error()
-	}
+	resp.Error = err
 	return resp, err
 }
 
 func runTasks(ctx context.Context, req model.Request) ([]byte, error) {
-	resp := model.Response{}
-	resp.TaskID = req.TaskID
-
 	tasks, err := makeTasks(req.Steps)
 	if err != nil {
 		return nil, err
 	}
 
 	if err = chromedp.Run(ctx, chromedp.Navigate(req.URL)); err != nil {
-		err = fmt.Errorf(`%s while navigating "%s"`, err.Error(), req.URL)
+		err = fmt.Errorf(`%s while navigating to "%s"`, err.Error(), req.URL)
 		return nil, err
 	}
-
-	var html string
-	tasks = append(tasks)
 
 	doneSteps := 0
 	for _, task := range tasks {
@@ -49,12 +41,13 @@ func runTasks(ctx context.Context, req model.Request) ([]byte, error) {
 		doneSteps++
 	}
 
-	if err = chromedp.Run(ctx, chromedp.OuterHTML(`html`, &html)); err != nil {
-		err = fmt.Errorf("%s while retrieving html", err.Error())
+	var result string
+	if err = chromedp.Run(ctx, chromedp.OuterHTML(req.Target, &result)); err != nil {
+		err = fmt.Errorf(`%s while retrieving outer html from "%s"`, err.Error(), req.Target)
 		return nil, err
 	}
 
-	return []byte(html), err
+	return []byte(result), nil
 }
 
 func makeTasks(steps []*model.Step) (chromedp.Tasks, error) {
