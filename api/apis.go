@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.paradise-soft.com.tw/backend/legion/glob"
-	"gitlab.paradise-soft.com.tw/backend/legion/model"
-	"gitlab.paradise-soft.com.tw/backend/legion/service"
+	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/dwh/legion/model"
+	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 	"gitlab.paradise-soft.com.tw/glob/common/codebook"
 )
 

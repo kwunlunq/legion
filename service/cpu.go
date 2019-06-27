@@ -3,8 +3,8 @@ package service
 import (
 	"time"
 
-	"gitlab.paradise-soft.com.tw/backend/legion/glob"
-	"gitlab.paradise-soft.com.tw/backend/yaitoo/tracer"
+	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
 func CPUMonitor() {

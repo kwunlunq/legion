@@ -1,9 +1,9 @@
 package main
 
 import (
-	"gitlab.paradise-soft.com.tw/backend/legion/api"
-	"gitlab.paradise-soft.com.tw/backend/legion/glob"
-	"gitlab.paradise-soft.com.tw/backend/legion/service"
+	"gitlab.paradise-soft.com.tw/dwh/legion/api"
+	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 )
 
 func main() {

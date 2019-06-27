@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/chromedp/chromedp"
-	"gitlab.paradise-soft.com.tw/backend/legion/glob"
-	"gitlab.paradise-soft.com.tw/backend/legion/model"
+	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
 func Scrape(req model.Request) (model.Response, error) {
