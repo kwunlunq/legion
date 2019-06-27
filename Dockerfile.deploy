@@ -1,0 +1,7 @@
+FROM chromedp/headless-shell
+COPY xunya-scraper.tar.gz .
+ADD app.conf.default app.conf
+RUN tar -zxf /xunya-scraper.tar.gz
+RUN ls
+ENTRYPOINT []
+CMD [ "./xunya-scraper" ]

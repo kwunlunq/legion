@@ -1,0 +1,19 @@
+image: docker:latest
+
+stages:
+  - create_image
+
+create_image_job:
+  stage: create_image
+  only:
+    - triggers
+  tags:
+    - docker
+  script:
+    - cp go.mod.default go.mod
+    - cp go.sum.default go.sum
+    - ls -l
+    - server=reg.paradise-soft.com.tw:5000
+    - appname=xunya-legion
+    - docker build . -f Dockerfile -t $server/$appname:$CI_COMMIT_REF_NAME --build-arg branch=$CI_COMMIT_REF_NAME
+    - docker push $server/$appname:$CI_COMMIT_REF_NAME
