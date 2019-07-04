@@ -10,7 +10,7 @@ import (
 func CPUMonitor() {
 	for {
 		cpu, _ := glob.CPUPercent()
-		if cpu > float64(glob.Config.CrawlerSetting.CPULimit) {
+		if cpu > float64(glob.Config.CPU.Limit) {
 			tracer.Tracef("CPU", "cpu is up to %g", cpu)
 		}
 		time.Sleep(30 * time.Second)

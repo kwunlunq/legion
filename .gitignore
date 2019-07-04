@@ -6,3 +6,5 @@ debug
 go\.mod
 
 go\.sum
+
+app\.conf

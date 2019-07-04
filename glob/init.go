@@ -11,32 +11,24 @@ import (
 
 var Config struct {
 	Chrome struct {
-		Path string `toml:"path"`
-	} `toml:"chrome"`
+		Path        string `mapstructure:"path"`
+		MaxBrowsers int    `mapstructure:"max_browsers"`
+		MaxTabs     int    `mapstructure:"max_tabs"`
+	} `mapstructure:"chrome"`
 	Log struct {
-		Level string `toml:"level"`
-	} `toml:"log"`
+		Level string `mapstructure:"level"`
+	} `mapstructure:"log"`
 	WWW struct {
-		Addr string `toml:"addr"`
-		Host string `toml:"host"`
-	} `toml:"www"`
+		Addr string `mapstructure:"addr"`
+		Host string `mapstructure:"host"`
+	} `mapstructure:"www"`
 	API struct {
-		Version string        `toml:"version"`
-		Timeout time.Duration `toml:"timeout"`
-	} `toml:"api"`
-	CrawlerSetting struct {
-		IsAsync            int `toml:"is_async"`
-		DefaultParallelism int `toml:"default_parallelism"`
-		RequestTimeout     int `toml:"request_timeout"`
-		CPULimit           int `toml:"cpu_limit"`
-	} `toml:"crawler_setting"`
-	Dispatcher struct {
-		Brokers []string `toml:"brokers"`
-		GroupID string   `toml:"group_id"`
-	} `toml:"dispatcher"`
-	ProxyService struct {
-		Host string `toml:"host"`
-	} `toml:"proxyService"`
+		Version string        `mapstructure:"version"`
+		Timeout time.Duration `mapstructure:"timeout"`
+	} `mapstructure:"api"`
+	CPU struct {
+		Limit int `mapstructure:"limit"`
+	} `mapstructure:"cpu"`
 }
 
 var (
