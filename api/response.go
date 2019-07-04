@@ -13,7 +13,7 @@ type Response struct {
 	Message string      `json:"message"`
 }
 
-func response(ctx *gin.Context, item interface{}, statusCode, success int, message string, err error) {
+func response(ctx *gin.Context, item interface{}, success int, message string, err error) {
 	resp := Response{
 		success,
 		item,

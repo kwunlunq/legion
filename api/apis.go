@@ -10,9 +10,11 @@ var Router = gin.Default()
 func Init() {
 	apis := Router.Group(glob.Config.API.Version + "/apis")
 
+	apis.GET("/health", getHealth)
+
 	dynamic := apis.Group("/dynamic")
-	dynamic.POST("/scrape", scrape)
+	dynamic.POST("/scrape", dynamicScrape)
 
 	static := apis.Group("/static")
-	static.POST("/scrape", scrape)
+	static.POST("/scrape", staticScrape)
 }

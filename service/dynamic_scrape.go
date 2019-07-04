@@ -9,7 +9,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func Scrape(req model.Request) (model.Response, error) {
+func DynamicScrape(req model.Request) (model.Response, error) {
 	ctx, cancel := glob.NewTabContext()
 	defer cancel()
 	body, err := runTasks(ctx, req)
