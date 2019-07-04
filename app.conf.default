@@ -1,0 +1,18 @@
+[chrome]
+path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+max_browsers = 3
+max_tabs = 5
+
+[log]
+level = 'info'
+
+[www]
+addr = ':9099'
+host = 'http://127.0.0.1'
+
+[api]
+version = 'v1'
+timeout = '10s'
+
+[cpu]
+limit = 80
