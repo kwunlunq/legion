@@ -7,9 +7,6 @@ import (
 
 func StaticScrape(req model.Request) (*model.Response, error) {
 	doc, err := glob.GetAndConvertToDocument(req.URL)
-	if err != nil {
-		return nil, err
-	}
 
 	body := []byte(doc.Find(req.Target).Text())
 

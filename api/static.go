@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
@@ -32,8 +31,8 @@ func staticScrape(ctx *gin.Context) {
 
 	resp, err := service.StaticScrape(req)
 	if err != nil {
-		response(ctx, resp, http.StatusInternalServerError, -1, glob.ScrapeFailed, err)
+		response(ctx, resp, -1, glob.ScrapeFailed, err)
 		return
 	}
-	response(ctx, resp, http.StatusOK, 1, glob.ScrapeSuccess, nil)
+	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
 }
