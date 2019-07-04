@@ -10,7 +10,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 )
 
-func scrape(ctx *gin.Context) {
+func dynamicScrape(ctx *gin.Context) {
 	req := model.Request{}
 	ctx.BindJSON(&req)
 	if req.TaskID == "" {
@@ -26,7 +26,7 @@ func scrape(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := service.Scrape(req)
+	resp, err := service.DynamicScrape(req)
 	if err != nil {
 		response(ctx, resp, http.StatusInternalServerError, -1, glob.ScrapeFailed, err)
 		return
