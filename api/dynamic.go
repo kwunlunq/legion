@@ -25,6 +25,10 @@ func dynamicScrape(ctx *gin.Context) {
 		responseParamError(ctx, errors.New("resp_topic"))
 		return
 	}
+	if req.Target == "" {
+		responseParamError(ctx, errors.New("target"))
+		return
+	}
 
 	resp, err := service.DynamicScrape(req)
 	if err != nil {

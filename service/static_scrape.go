@@ -5,7 +5,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func StaticScrape(req model.Request) (interface{}, error) {
+func StaticScrape(req model.Request) ([]byte, error) {
 	doc, err := glob.GetAndConvertToDocument(req.URL)
 	if err != nil {
 		return nil, err
@@ -13,5 +13,5 @@ func StaticScrape(req model.Request) (interface{}, error) {
 
 	result := doc.Find(req.Target).Text()
 
-	return result, nil
+	return []byte(result), nil
 }
