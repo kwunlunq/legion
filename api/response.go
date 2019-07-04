@@ -26,3 +26,7 @@ func response(ctx *gin.Context, item interface{}, statusCode, success int, messa
 
 	ctx.JSON(http.StatusOK, resp)
 }
+
+func responseParamError(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusBadRequest, Response{Message: "參數錯誤: " + err.Error(), Status: -1})
+}

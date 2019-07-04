@@ -1,31 +1,28 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
-	"gitlab.paradise-soft.com.tw/glob/common/codebook"
 )
 
 func scrape(ctx *gin.Context) {
 	req := model.Request{}
 	ctx.BindJSON(&req)
 	if req.TaskID == "" {
-		err := glob.StatusDetail(codebook.Status_Arguments_Missing, "task_id")
-		response(ctx, nil, http.StatusBadRequest, -1, err.Error(), nil)
+		responseParamError(ctx, errors.New("task_id"))
 		return
 	}
 	if req.URL == "" {
-		err := glob.StatusDetail(codebook.Status_Arguments_Missing, "url")
-		response(ctx, nil, http.StatusBadRequest, -1, err.Error(), nil)
+		responseParamError(ctx, errors.New("url"))
 		return
 	}
 	if req.RespTopic == "" {
-		err := glob.StatusDetail(codebook.Status_Arguments_Missing, "resp_topic")
-		response(ctx, nil, http.StatusBadRequest, -1, err.Error(), nil)
+		responseParamError(ctx, errors.New("resp_topic"))
 		return
 	}
 
