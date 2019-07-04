@@ -5,13 +5,18 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func StaticScrape(req model.Request) ([]byte, error) {
+func StaticScrape(req model.Request) (*model.Response, error) {
 	doc, err := glob.GetAndConvertToDocument(req.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	result := doc.Find(req.Target).Text()
+	body := []byte(doc.Find(req.Target).Text())
 
-	return []byte(result), nil
+	resp := &model.Response{}
+	resp.TaskID = req.TaskID
+	resp.Body = body
+	resp.Error = err
+
+	return resp, nil
 }
