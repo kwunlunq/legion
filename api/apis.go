@@ -17,4 +17,5 @@ func Init() {
 
 	static := apis.Group("/static")
 	static.POST("/scrape", staticScrape)
+	static.GET("/cache", getStaticCache)
 }

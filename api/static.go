@@ -11,7 +11,9 @@ import (
 
 func staticScrape(ctx *gin.Context) {
 	req := model.Request{}
+
 	ctx.BindJSON(&req)
+
 	if req.TaskID == "" {
 		responseParamError(ctx, errors.New("task_id"))
 		return
@@ -34,5 +36,25 @@ func staticScrape(ctx *gin.Context) {
 		response(ctx, resp, -1, glob.ScrapeFailed, err)
 		return
 	}
+
+	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+}
+
+func getStaticCache(ctx *gin.Context) {
+	req := model.StaticRequest{}
+
+	ctx.BindJSON(&req)
+
+	if req.TaskID == "" {
+		responseParamError(ctx, errors.New("task_id"))
+		return
+	}
+
+	resp, err := service.GetStaticCache(req)
+	if err != nil {
+		response(ctx, resp, -1, glob.ScrapeFailed, err)
+		return
+	}
+
 	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
 }

@@ -22,6 +22,7 @@ func response(ctx *gin.Context, item interface{}, success int, message string, e
 
 	if err != nil {
 		tracer.Error("apis", err.Error())
+		resp.Message = err.Error()
 	}
 
 	ctx.JSON(http.StatusOK, resp)
