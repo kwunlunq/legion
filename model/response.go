@@ -6,7 +6,7 @@ type Response struct {
 	Error  error  `json:"error"`
 }
 
-type StaticResponse struct {
+type CacheResponse struct {
 	TaskID  string `json:"task_id"`
-	Content string `json:"body"`
+	Content string `json:"content"`
 }

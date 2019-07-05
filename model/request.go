@@ -9,6 +9,6 @@ type Request struct {
 	Steps     []*Step `json:"steps"`
 }
 
-type StaticRequest struct {
-	TaskID string `json:"task_id"`
+type CacheRequest struct {
+	TaskID string `form:"task_id"`
 }

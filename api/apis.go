@@ -14,8 +14,9 @@ func Init() {
 
 	dynamic := apis.Group("/dynamic")
 	dynamic.POST("/scrape", dynamicScrape)
+	dynamic.GET("/cache", getDynamicCaches)
 
 	static := apis.Group("/static")
 	static.POST("/scrape", staticScrape)
-	static.GET("/cache", getStaticCache)
+	static.GET("/cache", getStaticCaches)
 }

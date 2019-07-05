@@ -18,10 +18,21 @@ func DynamicScrape(req model.Request) (model.Response, error) {
 
 	body, err := runTasks(tab.Context, req)
 
+	if req.Charset != "" {
+		body, err = glob.Decoder(body, req.Charset)
+	}
+
 	resp := model.Response{}
 	resp.TaskID = req.TaskID
 	resp.Body = body
 	resp.Error = err
+
+	if _, ok := caches.dynamicCaches[req.TaskID]; !ok {
+		caches.Lock()
+		caches.dynamicCaches[req.TaskID] = body
+		caches.Unlock()
+	}
+
 	return resp, err
 }
 
