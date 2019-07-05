@@ -1,19 +1,18 @@
 package glob
 
 import (
-	"context"
 	"time"
 
-	"github.com/chromedp/chromedp"
 	"github.com/spf13/viper"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
 var Config struct {
 	Chrome struct {
-		Path        string `mapstructure:"path"`
-		MaxBrowsers int    `mapstructure:"max_browsers"`
-		MaxTabs     int    `mapstructure:"max_tabs"`
+		Path          string `mapstructure:"path"`
+		MaxBrowsers   int    `mapstructure:"max_browsers"`
+		MaxTabs       int    `mapstructure:"max_tabs"`
+		MaxRetryCount int    `mapstructure:"max_retry_count"`
 	} `mapstructure:"chrome"`
 	Log struct {
 		Level string `mapstructure:"level"`
@@ -32,13 +31,13 @@ var Config struct {
 }
 
 var (
-	DefaultBrowserCTX context.Context
+	Pool *pool
 )
 
 func Init() {
 	loadConfig()
 	initTracer()
-	InitContext()
+	initPool()
 }
 
 func loadConfig() {
@@ -54,9 +53,6 @@ func initTracer() {
 	tracer.SetLevelWithName(Config.Log.Level)
 }
 
-func InitContext() {
-	DefaultBrowserCTX, _ = NewBrowserContext()
-	if err := chromedp.Run(DefaultBrowserCTX, chromedp.Navigate("http://www.google.com")); err != nil {
-		panic(err)
-	}
+func initPool() {
+	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
 }

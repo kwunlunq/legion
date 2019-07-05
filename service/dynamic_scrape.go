@@ -10,9 +10,13 @@ import (
 )
 
 func DynamicScrape(req model.Request) (model.Response, error) {
-	ctx, cancel := glob.NewTabContext()
-	defer cancel()
-	body, err := runTasks(ctx, req)
+	tab := glob.Pool.NewTab()
+	defer func() {
+		tab.Cancel()
+		glob.Pool.RemoveTab(tab)
+	}()
+
+	body, err := runTasks(tab.Context, req)
 
 	resp := model.Response{}
 	resp.TaskID = req.TaskID
