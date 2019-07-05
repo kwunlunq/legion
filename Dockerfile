@@ -1,11 +1,9 @@
 FROM chromedp/headless-shell
 
-ENV appname=xunya-legion
-
-COPY $appname .
+COPY xunya-legion .
 
 EXPOSE 9099
 
 ENTRYPOINT []
 
-CMD ["/$appname"]
+CMD ["./xunya-legion"]
