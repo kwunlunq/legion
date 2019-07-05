@@ -9,10 +9,10 @@ import (
 
 var Config struct {
 	Chrome struct {
-		Path          string `mapstructure:"path"`
-		MaxBrowsers   int    `mapstructure:"max_browsers"`
-		MaxTabs       int    `mapstructure:"max_tabs"`
-		MaxRetryCount int    `mapstructure:"max_retry_count"`
+		Headless      bool `mapstructure:"headless"`
+		MaxBrowsers   int  `mapstructure:"max_browsers"`
+		MaxTabs       int  `mapstructure:"max_tabs"`
+		MaxRetryCount int  `mapstructure:"max_retry_count"`
 	} `mapstructure:"chrome"`
 	Log struct {
 		Level string `mapstructure:"level"`
@@ -30,13 +30,10 @@ var Config struct {
 	} `mapstructure:"cpu"`
 }
 
-var (
-	Pool *pool
-)
-
 func Init() {
 	loadConfig()
 	initTracer()
+	initBrowserOptions()
 	initPool()
 }
 
@@ -51,8 +48,4 @@ func loadConfig() {
 
 func initTracer() {
 	tracer.SetLevelWithName(Config.Log.Level)
-}
-
-func initPool() {
-	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
 }

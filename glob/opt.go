@@ -2,11 +2,11 @@ package glob
 
 import "github.com/chromedp/chromedp"
 
-var DefaultExecAllocatorOptions = [...]chromedp.ExecAllocatorOption{
+var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.NoFirstRun,
 	chromedp.NoDefaultBrowserCheck,
-	// chromedp.Headless,
 
+	// After Puppeteer's default behavior.
 	chromedp.Flag("disable-background-networking", true),
 	chromedp.Flag("enable-features", "NetworkService,NetworkServiceInProcess"),
 	chromedp.Flag("disable-background-timer-throttling", true),
@@ -29,4 +29,10 @@ var DefaultExecAllocatorOptions = [...]chromedp.ExecAllocatorOption{
 	chromedp.Flag("enable-automation", true),
 	chromedp.Flag("password-store", "basic"),
 	chromedp.Flag("use-mock-keychain", true),
+}
+
+func initBrowserOptions() {
+	if Config.Chrome.Headless {
+		browserOptions = append(browserOptions, chromedp.Headless)
+	}
 }

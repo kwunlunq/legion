@@ -1,7 +1,8 @@
 [chrome]
-path='C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+headless=true
 max_browsers=3
 max_tabs=5
+max_retry_count=3
 
 [log]
 level='info'
