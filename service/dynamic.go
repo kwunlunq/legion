@@ -9,7 +9,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func DynamicScrape(req model.Request) (model.Response, error) {
+func DynamicScrape(req model.Request) (*model.Response, error) {
 	tab := glob.Pool.NewTab()
 	defer func() {
 		tab.Cancel()
@@ -22,18 +22,31 @@ func DynamicScrape(req model.Request) (model.Response, error) {
 		body, err = glob.Decoder(body, req.Charset)
 	}
 
-	resp := model.Response{}
+	resp := &model.Response{}
 	resp.TaskID = req.TaskID
 	resp.Body = body
 	resp.Error = err
 
-	if _, ok := caches.dynamicCaches[req.TaskID]; !ok {
-		caches.Lock()
-		caches.dynamicCaches[req.TaskID] = body
-		caches.Unlock()
+	if err := glob.Cache.SetDynamicCache(req.TaskID, body); err != nil {
+		return nil, err
 	}
 
 	return resp, err
+}
+
+func GetDynamicCache(req model.CacheRequest) (*model.CacheResponse, error) {
+	resp := &model.CacheResponse{}
+
+	resp.TaskID = req.TaskID
+
+	value, err := glob.Cache.GetDynamicCache(req.TaskID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp.Content = string(value)
+
+	return resp, nil
 }
 
 func runTasks(ctx context.Context, req model.Request) ([]byte, error) {

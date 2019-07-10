@@ -40,7 +40,7 @@ func staticScrape(ctx *gin.Context) {
 	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
 }
 
-func getStaticCaches(ctx *gin.Context) {
+func getStaticCache(ctx *gin.Context) {
 	req := model.CacheRequest{}
 
 	ctx.BindQuery(&req)
@@ -50,7 +50,7 @@ func getStaticCaches(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := service.GetStaticCaches(req)
+	resp, err := service.GetStaticCache(req)
 	if err != nil {
 		response(ctx, resp, -1, glob.ScrapeFailed, err)
 		return

@@ -31,13 +31,15 @@ var Config struct {
 }
 
 var (
-	Pool *pool
+	Pool  *pool
+	Cache *cache
 )
 
 func Init() {
 	loadConfig()
 	initTracer()
 	initPool()
+	initCache()
 }
 
 func loadConfig() {
@@ -55,4 +57,8 @@ func initTracer() {
 
 func initPool() {
 	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
+}
+
+func initCache() {
+	Cache = NewCache()
 }

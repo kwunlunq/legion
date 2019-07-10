@@ -19,11 +19,24 @@ func StaticScrape(req model.Request) (*model.Response, error) {
 	resp.Body = body
 	resp.Error = err
 
-	if _, ok := caches.staticCaches[req.TaskID]; !ok {
-		caches.Lock()
-		caches.staticCaches[req.TaskID] = body
-		caches.Unlock()
+	if err := glob.Cache.SetStaticCache(req.TaskID, body); err != nil {
+		return nil, err
 	}
+
+	return resp, nil
+}
+
+func GetStaticCache(req model.CacheRequest) (*model.CacheResponse, error) {
+	resp := &model.CacheResponse{}
+
+	resp.TaskID = req.TaskID
+
+	value, err := glob.Cache.GetStaticCache(req.TaskID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp.Content = string(value)
 
 	return resp, nil
 }
