@@ -5,10 +5,18 @@ import (
 	"sync"
 )
 
+var (
+	Cache *cache
+)
+
 type cache struct {
 	sync.Mutex
 	staticCache  map[string][]byte
 	dynamicCache map[string][]byte
+}
+
+func initCache() {
+	Cache = NewCache()
 }
 
 func NewCache() *cache {

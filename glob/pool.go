@@ -6,12 +6,20 @@ import (
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
+var (
+	Pool *pool
+)
+
 type pool struct {
 	sync.RWMutex
 	browsers      []*Browser
 	maxBrowsers   int
 	maxTabs       int
 	maxRetryCount int
+}
+
+func initPool() {
+	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
 }
 
 func NewPool(maxBrowsers, maxTabs int) *pool {
