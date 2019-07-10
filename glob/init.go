@@ -35,6 +35,7 @@ func Init() {
 	initTracer()
 	initBrowserOptions()
 	initPool()
+	initCache()
 }
 
 func loadConfig() {

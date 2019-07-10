@@ -36,3 +36,22 @@ func dynamicScrape(ctx *gin.Context) {
 	}
 	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
 }
+
+func getDynamicCache(ctx *gin.Context) {
+	req := model.CacheRequest{}
+
+	ctx.BindQuery(&req)
+
+	if req.TaskID == "" {
+		responseParamError(ctx, errors.New("task_id"))
+		return
+	}
+
+	resp, err := service.GetDynamicCache(req)
+	if err != nil {
+		response(ctx, resp, -1, glob.ScrapeFailed, err)
+		return
+	}
+
+	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+}
