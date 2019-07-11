@@ -12,6 +12,6 @@ type Request struct {
 }
 
 type CacheRequest struct {
-	TaskID  string `form:"task_id"`
+	TaskID  string `json:"task_id" form:"task_id"`
 	Content string `json:"content"`
 }
