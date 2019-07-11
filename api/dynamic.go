@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.paradise-soft.com.tw/dwh/dispatcher"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 

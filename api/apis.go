@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"gitlab.paradise-soft.com.tw/dwh/dispatcher"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 )
 
@@ -9,6 +10,7 @@ var Router = gin.Default()
 
 func Init() {
 	InitAPIS()
+	InitSubscribe()
 }
 
 func InitAPIS() {
@@ -23,4 +25,18 @@ func InitAPIS() {
 	static := apis.Group("/static")
 	static.POST("/scrape", staticScrapeAPI)
 	static.GET("/cache", getStaticCache)
+}
+
+func InitSubscribe() {
+	dispatcher.Subscribe(glob.Config.Dispatcher.DynamicTopic,
+		dynamicScrape,
+		dispatcher.ConsumerOmitOldMsg(),
+		dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.DynamicAsyncNum),
+	)
+
+	dispatcher.Subscribe(glob.Config.Dispatcher.StaticTopic,
+		staticScrape,
+		dispatcher.ConsumerOmitOldMsg(),
+		dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.StaticAsyncNum),
+	)
 }

@@ -44,6 +44,7 @@ func Init() {
 	initBrowserOptions()
 	initPool()
 	initCache()
+	initDispatcher()
 }
 
 func loadConfig() {
