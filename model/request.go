@@ -7,8 +7,11 @@ type Request struct {
 	Target    string  `json:"target"`
 	Charset   string  `json:"charset"`
 	Steps     []*Step `json:"steps"`
+	Body      []byte  `json:"body"`
+	Error     error   `json:"error"`
 }
 
 type CacheRequest struct {
-	TaskID string `form:"task_id"`
+	TaskID  string `form:"task_id"`
+	Content string `json:"content"`
 }

@@ -1,57 +1,79 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.paradise-soft.com.tw/dwh/dispatcher"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
-func dynamicScrape(ctx *gin.Context) {
-	req := model.Request{}
-	ctx.BindJSON(&req)
-	if req.TaskID == "" {
-		responseParamError(ctx, errors.New("task_id"))
-		return
+func dynamicScrape(data []byte) error {
+	var err error
+	var out []byte
+	req := &model.Request{}
+
+	if err = json.Unmarshal(data, req); err != nil {
+		return err
 	}
-	if req.URL == "" {
-		responseParamError(ctx, errors.New("url"))
-		return
+
+	if err = checkParams(req); err != nil {
+		return err
 	}
-	if req.RespTopic == "" {
-		responseParamError(ctx, errors.New("resp_topic"))
-		return
+
+	if err = service.DynamicScrape(req); err != nil {
+		return err
 	}
-	if req.Target == "" {
-		responseParamError(ctx, errors.New("target"))
+
+	if out, err = json.Marshal(req); err != nil {
+		return err
+	}
+
+	if err = dispatcher.Send(req.RespTopic, out, dispatcher.ProducerAddErrHandler(DispatcherErrHandler)); err != nil {
+		return err
+	}
+	return nil
+}
+
+func DispatcherErrHandler(data []byte, err error) {
+	if err != nil {
+		tracer.Error("Dispatcher", err, data)
+	}
+}
+
+func dynamicScrapeAPI(ctx *gin.Context) {
+	req := &model.Request{}
+	ctx.BindJSON(req)
+	if err := checkParams(req); err != nil {
+		responseParamError(ctx, err)
 		return
 	}
 
-	resp, err := service.DynamicScrape(req)
-	if err != nil {
-		response(ctx, resp, -1, glob.ScrapeFailed, err)
+	if err := service.DynamicScrape(req); err != nil {
+		response(ctx, req, -1, glob.ScrapeFailed, err)
 		return
 	}
-	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+	response(ctx, req, 1, glob.ScrapeSuccess, nil)
 }
 
 func getDynamicCache(ctx *gin.Context) {
-	req := model.CacheRequest{}
+	req := &model.CacheRequest{}
 
-	ctx.BindQuery(&req)
+	ctx.BindQuery(req)
 
 	if req.TaskID == "" {
 		responseParamError(ctx, errors.New("task_id"))
 		return
 	}
 
-	resp, err := service.GetDynamicCache(req)
-	if err != nil {
-		response(ctx, resp, -1, glob.ScrapeFailed, err)
+	if err := service.GetDynamicCache(req); err != nil {
+		response(ctx, req, -1, glob.ScrapeFailed, err)
 		return
 	}
 
-	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+	response(ctx, req, 1, glob.ScrapeSuccess, nil)
 }

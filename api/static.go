@@ -1,60 +1,75 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.paradise-soft.com.tw/dwh/dispatcher"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 )
 
-func staticScrape(ctx *gin.Context) {
-	req := model.Request{}
+func staticScrape(data []byte) error {
+	var err error
+	var out []byte
+	req := &model.Request{}
 
-	ctx.BindJSON(&req)
-
-	if req.TaskID == "" {
-		responseParamError(ctx, errors.New("task_id"))
-		return
-	}
-	if req.URL == "" {
-		responseParamError(ctx, errors.New("url"))
-		return
-	}
-	if req.RespTopic == "" {
-		responseParamError(ctx, errors.New("resp_topic"))
-		return
-	}
-	if req.Target == "" {
-		responseParamError(ctx, errors.New("target"))
-		return
+	if err = json.Unmarshal(data, req); err != nil {
+		return err
 	}
 
-	resp, err := service.StaticScrape(req)
-	if err != nil {
-		response(ctx, resp, -1, glob.ScrapeFailed, err)
+	if err = checkParams(req); err != nil {
+		return err
+	}
+
+	if err = service.StaticScrape(req); err != nil {
+		return err
+	}
+
+	if out, err = json.Marshal(req); err != nil {
+		return err
+	}
+
+	if err = dispatcher.Send(req.RespTopic, out); err != nil {
+		return err
+	}
+	return nil
+}
+
+func staticScrapeAPI(ctx *gin.Context) {
+	req := &model.Request{}
+
+	ctx.BindJSON(req)
+
+	if err := checkParams(req); err != nil {
+		responseParamError(ctx, err)
 		return
 	}
 
-	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+	if err := service.StaticScrape(req); err != nil {
+		response(ctx, req, -1, glob.ScrapeFailed, err)
+		return
+	}
+
+	response(ctx, req, 1, glob.ScrapeSuccess, nil)
 }
 
 func getStaticCache(ctx *gin.Context) {
-	req := model.CacheRequest{}
+	req := &model.CacheRequest{}
 
-	ctx.BindQuery(&req)
+	ctx.BindQuery(req)
 
 	if req.TaskID == "" {
 		responseParamError(ctx, errors.New("task_id"))
 		return
 	}
 
-	resp, err := service.GetStaticCache(req)
-	if err != nil {
-		response(ctx, resp, -1, glob.ScrapeFailed, err)
+	if err := service.GetStaticCache(req); err != nil {
+		response(ctx, req, -1, glob.ScrapeFailed, err)
 		return
 	}
 
-	response(ctx, resp, 1, glob.ScrapeSuccess, nil)
+	response(ctx, req, 1, glob.ScrapeSuccess, nil)
 }

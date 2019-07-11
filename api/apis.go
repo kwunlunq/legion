@@ -8,15 +8,19 @@ import (
 var Router = gin.Default()
 
 func Init() {
+	InitAPIS()
+}
+
+func InitAPIS() {
 	apis := Router.Group(glob.Config.API.Version + "/apis")
 
 	apis.GET("/health", getHealth)
 
 	dynamic := apis.Group("/dynamic")
-	dynamic.POST("/scrape", dynamicScrape)
+	dynamic.POST("/scrape", dynamicScrapeAPI)
 	dynamic.GET("/cache", getDynamicCache)
 
 	static := apis.Group("/static")
-	static.POST("/scrape", staticScrape)
+	static.POST("/scrape", staticScrapeAPI)
 	static.GET("/cache", getStaticCache)
 }

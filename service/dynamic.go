@@ -9,7 +9,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func DynamicScrape(req model.Request) (*model.Response, error) {
+func DynamicScrape(req *model.Request) error {
 	tab := glob.Pool.NewTab()
 	defer func() {
 		tab.Cancel()
@@ -22,34 +22,28 @@ func DynamicScrape(req model.Request) (*model.Response, error) {
 		body, err = glob.Decoder(body, req.Charset)
 	}
 
-	resp := &model.Response{}
-	resp.TaskID = req.TaskID
-	resp.Body = body
-	resp.Error = err
-
 	if err := glob.Cache.SetDynamicCache(req.TaskID, body); err != nil {
-		return nil, err
+		return err
 	}
 
-	return resp, err
+	req.Body = body
+	req.Error = err
+
+	return nil
 }
 
-func GetDynamicCache(req model.CacheRequest) (*model.CacheResponse, error) {
-	resp := &model.CacheResponse{}
-
-	resp.TaskID = req.TaskID
-
+func GetDynamicCache(req *model.CacheRequest) error {
 	value, err := glob.Cache.GetDynamicCache(req.TaskID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	resp.Content = string(value)
+	req.Content = string(value)
 
-	return resp, nil
+	return nil
 }
 
-func runTasks(ctx context.Context, req model.Request) ([]byte, error) {
+func runTasks(ctx context.Context, req *model.Request) ([]byte, error) {
 	tasks, err := makeTasks(req.Steps)
 	if err != nil {
 		return nil, err

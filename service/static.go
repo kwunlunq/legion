@@ -5,7 +5,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func StaticScrape(req model.Request) (*model.Response, error) {
+func StaticScrape(req *model.Request) error {
 	doc, err := glob.GetAndConvertToDocument(req.URL)
 
 	body := []byte(doc.Find(req.Target).Text())
@@ -14,29 +14,23 @@ func StaticScrape(req model.Request) (*model.Response, error) {
 		body, err = glob.Decoder(body, req.Charset)
 	}
 
-	resp := &model.Response{}
-	resp.TaskID = req.TaskID
-	resp.Body = body
-	resp.Error = err
+	req.Body = body
+	req.Error = err
 
 	if err := glob.Cache.SetStaticCache(req.TaskID, body); err != nil {
-		return nil, err
+		return err
 	}
 
-	return resp, nil
+	return nil
 }
 
-func GetStaticCache(req model.CacheRequest) (*model.CacheResponse, error) {
-	resp := &model.CacheResponse{}
-
-	resp.TaskID = req.TaskID
-
+func GetStaticCache(req *model.CacheRequest) error {
 	value, err := glob.Cache.GetStaticCache(req.TaskID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	resp.Content = string(value)
+	req.Content = string(value)
 
-	return resp, nil
+	return nil
 }
