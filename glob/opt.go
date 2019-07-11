@@ -29,6 +29,7 @@ var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.Flag("enable-automation", true),
 	chromedp.Flag("password-store", "basic"),
 	chromedp.Flag("use-mock-keychain", true),
+	chromedp.Flag("no-sandbox", true),
 }
 
 func initBrowserOptions() {
