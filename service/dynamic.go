@@ -10,6 +10,7 @@ import (
 )
 
 func DynamicScrape(req *model.Request) error {
+	// Todo: err is not handled correctly
 	tab := glob.Pool.NewTab()
 	defer func() {
 		tab.Cancel()

@@ -6,6 +6,7 @@ import (
 )
 
 func StaticScrape(req *model.Request) error {
+	// Todo: err is not handled correctly
 	doc, err := glob.GetAndConvertToDocument(req.URL)
 
 	body := []byte(doc.Find(req.Target).Text())

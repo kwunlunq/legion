@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.paradise-soft.com.tw/dwh/dispatcher"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 )
 
 var Router = gin.Default()
