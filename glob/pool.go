@@ -34,6 +34,7 @@ func NewPool(maxBrowsers, maxTabs int) *pool {
 }
 
 func (p *pool) Fill() {
+	// Todo: Sometimes the program gets stuck in this function
 	p.Lock()
 	defer p.Unlock()
 

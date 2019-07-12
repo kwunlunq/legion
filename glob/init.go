@@ -53,7 +53,10 @@ func loadConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
-	viper.Unmarshal(&Config)
+
+	if err := viper.Unmarshal(&Config); err != nil {
+		panic(err)
+	}
 }
 
 func initTracer() {
