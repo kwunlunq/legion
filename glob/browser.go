@@ -26,9 +26,8 @@ func NewBrowser() (*Browser, error) {
 
 func (b *Browser) NewTab() (*Tab, error) {
 	tab := &Tab{}
-	tab.Context, tab.Cancel = chromedp.NewContext(b.Context)
-	// Todo: Add timeout to each context
-	// tab.Context, tab.Cancel = context.WithTimeout(tab.Context, Config.Chrome.Timeout)
+	tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
+	tab.Context, tab.cancel = context.WithTimeout(tab.orgContext, Config.Chrome.Timeout)
 	if err := chromedp.Run(tab.Context, chromedp.Navigate("about:blank")); err != nil {
 		return nil, err
 	}
