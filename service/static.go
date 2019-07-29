@@ -1,13 +1,23 @@
 package service
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func StaticScrape(req *model.Request) error {
+func StaticScrape(req *model.Request) (err error) {
 	// Todo: err is not handled correctly
-	doc, err := glob.GetAndConvertToDocument(req.URL)
+	var doc *goquery.Document
+	if len(req.ProxyLocation) != 0 {
+		if doc, err = glob.GetAndConvertToDocumentByProxy(req.URL, req.ProxyLocation...); err != nil {
+			return err
+		}
+	} else {
+		if doc, err = glob.GetAndConvertToDocument(req.URL); err != nil {
+			return err
+		}
+	}
 
 	body := []byte(doc.Find(req.Target).Text())
 
