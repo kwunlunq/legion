@@ -36,6 +36,9 @@ var Config struct {
 		DynamicAsyncNum int      `mapstructure:"dynamic_async_num"`
 		StaticAsyncNum  int      `mapstructure:"static_async_num"`
 	} `mapstructure:"dispatcher"`
+	ProxyService struct {
+		Host string `mapstructure:"host"`
+	} `mapstructure:"proxyService"`
 }
 
 func Init() {
@@ -45,6 +48,7 @@ func Init() {
 	initPool()
 	initCache()
 	initDispatcher()
+	initProxyService()
 }
 
 func loadConfig() {

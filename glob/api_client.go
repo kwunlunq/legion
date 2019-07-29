@@ -2,10 +2,13 @@ package glob
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -32,15 +35,43 @@ func GetAndConvertToDocument(targetSite string) (*goquery.Document, error) {
 
 	defer resp.Body.Close()
 
-	// var reader io.Reader
-	// switch charset {
-	// case "utf-8", "utf8":
-	// 	reader = resp.Body
-	// case "gbk", "gb18030":
-	// 	reader = simplifiedchinese.GB18030.NewDecoder().Reader(resp.Body)
-	// default:
-	// 	reader = resp.Body
-	// }
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := goquery.NewDocumentFromReader(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+
+	return d, err
+}
+
+func GetAndConvertToDocumentByProxy(targetSite string, proxyLocation ...string) (*goquery.Document, error) {
+	proxyURL, err := GetProxyErr(proxyLocation...)
+	if err != nil {
+		return nil, err
+	}
+
+	proxy, _ := url.Parse(proxyURL)
+
+	tr := &http.Transport{
+		Proxy:           http.ProxyURL(proxy),
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{
+		Transport: tr,
+		Timeout:   time.Second * 10,
+	}
+
+	resp, err := client.Get(targetSite)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
