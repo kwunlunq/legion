@@ -8,7 +8,8 @@ require (
 	github.com/chromedp/chromedp v0.3.1-0.20190614072529-35b61282746d
 	github.com/gin-gonic/gin v1.4.0
 	github.com/spf13/viper v1.4.0
-	gitlab.paradise-soft.com.tw/glob/dispatcher v1.7.1
+	gitlab.paradise-soft.com.tw/glob/dispatcher v1.7.2
+    gitlab.paradise-soft.com.tw/glob/gorequest v0.0.0-20190822092344-62bd516ada27
 	gitlab.paradise-soft.com.tw/glob/tracer v1.0.1
 	golang.org/x/sys v0.0.0-20190613124609-5ed2794edfdc // indirect
 	golang.org/x/text v0.3.0

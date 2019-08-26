@@ -6,25 +6,34 @@ import (
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 )
 
-var Router = gin.Default()
+var Router *gin.Engine
 
 func Init() {
+	Router = gin.Default()
 	InitAPIS()
 	InitSubscribe()
 }
 
 func InitAPIS() {
+	// /v1/apis
 	apis := Router.Group(glob.Config.API.Version + "/apis")
+	{
+		apis.GET("/health", getHealth)
 
-	apis.GET("/health", getHealth)
+		// /v1/apis/dynamic
+		dynamic := apis.Group("/dynamic")
+		{
+			dynamic.POST("/scrape", dynamicScrapeAPI)
+			dynamic.GET("/cache", getDynamicCache)
+		}
 
-	dynamic := apis.Group("/dynamic")
-	dynamic.POST("/scrape", dynamicScrapeAPI)
-	dynamic.GET("/cache", getDynamicCache)
-
-	static := apis.Group("/static")
-	static.POST("/scrape", staticScrapeAPI)
-	static.GET("/cache", getStaticCache)
+		// /v1/apis/static
+		static := apis.Group("/static")
+		{
+			static.POST("/scrape", staticScrapeAPI)
+			static.GET("/cache", getStaticCache)
+		}
+	}
 }
 
 func InitSubscribe() {

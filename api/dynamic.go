@@ -3,40 +3,87 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net/url"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
-	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
-func dynamicScrape(data []byte) error {
-	var err error
-	var out []byte
-	req := &model.Request{}
-
-	if err = json.Unmarshal(data, req); err != nil {
-		return err
+func dynamicScrape(data []byte) (err error) {
+	legionReq := &service.LegionRequest{}
+	if err = json.Unmarshal(data, legionReq); err != nil {
+		return
 	}
 
-	if err = checkParams(req); err != nil {
-		return err
+	now := time.Now()
+	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
+		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
+		return
 	}
 
-	if err = service.DynamicScrape(req); err != nil {
-		return err
+	err = legionReq.CheckKafka()
+	if err != nil {
+		return
 	}
 
-	if out, err = json.Marshal(req); err != nil {
-		return err
+	legionResp := legionReq.GetDynamicResponse()
+	// var legionRespBytes []byte
+	// legionRespBytes, err = json.Marshal(legionResp)
+	// if err != nil {
+	// 	// internal error
+	// 	tracer.Error("internal", err)
+	// 	return
+	// }
+
+	const staticCachePath = `/v1/apis/dynamic/cache`
+	cacheKey := fmt.Sprintf("[%s][%s]", legionReq.RespTopic, uuid.New().String())
+	queryData := url.Values{}
+	queryData.Add("key", cacheKey)
+
+	legionKafkaResp := &service.Notice{}
+	legionKafkaResp.InternalURL = fmt.Sprintf("%s%s?%s",
+		glob.Config.WWW.InternalHost,
+		staticCachePath,
+		queryData.Encode(),
+	)
+
+	legionKafkaResp.ExternalURL = fmt.Sprintf("%s%s?%s",
+		glob.Config.WWW.ExternalHost,
+		staticCachePath,
+		queryData.Encode(),
+	)
+
+	var legionKafkaRespBytes []byte
+	legionKafkaRespBytes, err = json.Marshal(legionKafkaResp)
+	if err != nil {
+		// internal error
+		tracer.Error("internal", err)
+		return
 	}
 
-	if err = dispatcher.Send(req.RespTopic, out, dispatcher.ProducerAddErrHandler(DispatcherErrHandler)); err != nil {
-		return err
+	ok := glob.RespCache.SaveDynamic(cacheKey, legionResp)
+	if !ok {
+		// internal error
+		err = errors.New("key exist")
+		tracer.Error("internal", err)
+		return
 	}
-	return nil
+
+	err = dispatcher.Send(legionReq.RespTopic, legionKafkaRespBytes)
+	if err != nil {
+		// internal error
+		tracer.Error("internal", err)
+		return
+	}
+	return
+
 }
 
 func DispatcherErrHandler(data []byte, err error) {
@@ -46,34 +93,40 @@ func DispatcherErrHandler(data []byte, err error) {
 }
 
 func dynamicScrapeAPI(ctx *gin.Context) {
-	req := &model.Request{}
-	ctx.BindJSON(req)
-	if err := checkParams(req); err != nil {
+	legionReq := &service.LegionRequest{}
+	err := ctx.ShouldBindJSON(legionReq)
+	if err != nil {
 		responseParamError(ctx, err)
 		return
 	}
 
-	if err := service.DynamicScrape(req); err != nil {
-		response(ctx, req, -1, glob.ScrapeFailed, err)
-		return
-	}
-	response(ctx, req, 1, glob.ScrapeSuccess, nil)
+	legionResp := legionReq.GetDynamicResponse()
+	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 
 func getDynamicCache(ctx *gin.Context) {
-	req := &model.CacheRequest{}
+	var err error
+	req := &service.CacheRequest{}
 
-	ctx.BindQuery(req)
-
-	if req.TaskID == "" {
-		responseParamError(ctx, errors.New("task_id"))
+	err = ctx.ShouldBindQuery(req)
+	if err != nil {
+		responseParamError(ctx, err)
 		return
 	}
 
-	if err := service.GetDynamicCache(req); err != nil {
-		response(ctx, req, -1, glob.ScrapeFailed, err)
+	if req.Key == "" {
+		err = errors.New("key is empty")
+		responseParamError(ctx, err)
 		return
 	}
 
-	response(ctx, req, 1, glob.ScrapeSuccess, nil)
+	value, ok := glob.RespCache.GetDynamic(req.Key)
+	if !ok {
+		err = errors.New("key does not exist")
+		responseParamError(ctx, err)
+		return
+	}
+
+	glob.RespCache.DeleteDynamic(req.Key)
+	response(ctx, value, 1, glob.ScrapeSuccess, nil)
 }

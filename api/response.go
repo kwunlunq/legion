@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,16 +9,16 @@ import (
 )
 
 type Response struct {
-	Status  int         `json:"status"` //1為成功、0為、-1為失敗
+	Status  int         `json:"status"` // "success": 1, "fail": -1
 	Data    interface{} `json:"data"`
 	Message string      `json:"message"`
 }
 
 func response(ctx *gin.Context, item interface{}, success int, message string, err error) {
 	resp := Response{
-		success,
-		item,
-		message,
+		Status:  success,
+		Data:    item,
+		Message: message,
 	}
 
 	if err != nil {
@@ -29,5 +30,10 @@ func response(ctx *gin.Context, item interface{}, success int, message string, e
 }
 
 func responseParamError(ctx *gin.Context, err error) {
-	ctx.JSON(http.StatusBadRequest, Response{Message: "參數錯誤: " + err.Error(), Status: -1})
+	resp := Response{
+		Status: -1,
+		// Data:    nil,
+		Message: fmt.Sprintf("參數錯誤: %v", err.Error()),
+	}
+	ctx.JSON(http.StatusBadRequest, resp)
 }
