@@ -47,21 +47,21 @@ func dynamicScrape(data []byte) (err error) {
 	queryData := url.Values{}
 	queryData.Add("key", cacheKey)
 
-	legionKafkaResp := &service.Notice{}
-	legionKafkaResp.InternalURL = fmt.Sprintf("%s%s?%s",
+	notice := &service.Notice{}
+	notice.InternalURL = fmt.Sprintf("%s%s?%s",
 		glob.Config.WWW.InternalHost,
 		staticCachePath,
 		queryData.Encode(),
 	)
 
-	legionKafkaResp.ExternalURL = fmt.Sprintf("%s%s?%s",
+	notice.ExternalURL = fmt.Sprintf("%s%s?%s",
 		glob.Config.WWW.ExternalHost,
 		staticCachePath,
 		queryData.Encode(),
 	)
 
-	var legionKafkaRespBytes []byte
-	legionKafkaRespBytes, err = json.Marshal(legionKafkaResp)
+	var noticeBytes []byte
+	noticeBytes, err = json.Marshal(notice)
 	if err != nil {
 		// internal error
 		tracer.Error("internal", err)
@@ -76,7 +76,7 @@ func dynamicScrape(data []byte) (err error) {
 		return
 	}
 
-	err = dispatcher.Send(legionReq.RespTopic, legionKafkaRespBytes)
+	err = dispatcher.Send(legionReq.RespTopic, noticeBytes)
 	if err != nil {
 		// internal error
 		tracer.Error("internal", err)

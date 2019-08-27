@@ -13,8 +13,9 @@ var (
 
 // Notice 透過 kafka 通知使用者取資料 所傳遞的資訊
 type Notice struct {
-	InternalURL string `json:"internalURL"`
-	ExternalURL string `json:"externalURL"`
+	InternalURL string    `json:"internalURL"`
+	ExternalURL string    `json:"externalURL"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 type LegionRequest struct {

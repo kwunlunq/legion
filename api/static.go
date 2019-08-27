@@ -46,23 +46,23 @@ func staticScrape(data []byte) (err error) {
 	queryData := url.Values{}
 	queryData.Add("key", cacheKey)
 
-	legionKafkaResp := &service.Notice{}
-	legionKafkaResp.InternalURL = fmt.Sprintf("%s%s%s?%s",
+	notice := &service.Notice{}
+	notice.InternalURL = fmt.Sprintf("%s%s%s?%s",
 		glob.Config.WWW.InternalHost,
 		glob.Config.WWW.Addr,
 		staticCachePath,
 		queryData.Encode(),
 	)
 
-	legionKafkaResp.ExternalURL = fmt.Sprintf("%s%s%s?%s",
+	notice.ExternalURL = fmt.Sprintf("%s%s%s?%s",
 		glob.Config.WWW.ExternalHost,
 		glob.Config.WWW.Addr,
 		staticCachePath,
 		queryData.Encode(),
 	)
 
-	var legionKafkaRespBytes []byte
-	legionKafkaRespBytes, err = json.Marshal(legionKafkaResp)
+	var noticeBytes []byte
+	noticeBytes, err = json.Marshal(notice)
 	if err != nil {
 		// internal error
 		tracer.Error("internal", err)
@@ -77,13 +77,7 @@ func staticScrape(data []byte) (err error) {
 		return
 	}
 
-	err = dispatcher.Send(
-		legionReq.RespTopic,
-		legionKafkaRespBytes,
-		dispatcher.ProducerAddErrHandler(func(value []byte, err error) {
-			tracer.Error("sdk", err)
-		}),
-	)
+	err = dispatcher.Send(legionReq.RespTopic, noticeBytes)
 
 	if err != nil {
 		// internal error
