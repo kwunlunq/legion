@@ -16,7 +16,6 @@ import (
 )
 
 func staticScrape(data []byte) (err error) {
-	tracer.Infof("start", "starting")
 	legionReq := &service.LegionRequest{}
 	if err = json.Unmarshal(data, legionReq); err != nil {
 		tracer.Errorf("staticScrape", "%v", err)

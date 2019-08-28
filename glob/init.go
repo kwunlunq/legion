@@ -51,8 +51,8 @@ var Config struct {
 func Init() {
 	loadConfig()
 	initTracer()
-	// initBrowserOptions()
-	// initPool()
+	initBrowserOptions()
+	initPool()
 	initRespCache()
 	initDispatcher()
 	initProxyService()
