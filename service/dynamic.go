@@ -16,20 +16,22 @@ const (
 	WaitVisible = "wait_visible"
 )
 
-func (this *LegionRequest) GetDynamicResponse() (LegionResp *LegionResponse) {
+func (this *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
+	// var resp *http.Response
 	var body []byte
-	var ReqErr error
-	body, ReqErr = this.doDynamic()
+	var err error
+	body, err = this.doDynamic()
 
-	LegionResp = &LegionResponse{}
-	LegionResp.Req = this
-
-	if ReqErr != nil {
-		LegionResp.ErrorMessages = []string{ReqErr.Error()}
+	legionResult = &LegionResult{}
+	legionResult.Request = this
+	if err != nil {
+		legionResult.ErrorMessage = err.Error()
 		return
 	}
 
-	LegionResp.Body = body
+	legionResp := &LegionResponse{}
+	legionResp.Body = body
+	legionResult.Response = legionResp
 	return
 }
 

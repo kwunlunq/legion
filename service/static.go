@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"net/http"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -21,22 +22,28 @@ const (
 	TypeMultipart = "multipart" // "multipart/form-data"
 )
 
-func (this *LegionRequest) GetStaticResponse() (LegionResp *LegionResponse) {
+func (this *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
 	var resp *http.Response
 	var body []byte
-	var ReqErr error
-	resp, body, ReqErr = this.doStatic()
+	var err error
+	resp, body, err = this.doStatic()
 
-	LegionResp = &LegionResponse{}
-	LegionResp.Req = this
-
-	if ReqErr != nil {
-		LegionResp.ErrorMessages = []string{ReqErr.Error()}
+	legionResult = &LegionResult{}
+	legionResult.Request = this
+	if err != nil {
+		legionResult.ErrorMessage = err.Error()
 		return
 	}
 
-	LegionResp.Body = body
-	LegionResp.StatusCode = resp.StatusCode
+	legionResp := &LegionResponse{}
+	legionResp.StatusCode = resp.StatusCode
+	legionResp.Header = make(map[string]string, len(resp.Header))
+	for key, val := range resp.Header {
+		legionResp.Header[key] = strings.Join(val, ",")
+	}
+
+	legionResp.Body = body
+	legionResult.Response = legionResp
 	return
 }
 

@@ -16,30 +16,27 @@ import (
 )
 
 func staticScrape(data []byte) (err error) {
+	tracer.Infof("start", "starting")
 	legionReq := &service.LegionRequest{}
 	if err = json.Unmarshal(data, legionReq); err != nil {
+		tracer.Errorf("staticScrape", "%v", err)
 		return
 	}
 
 	now := time.Now()
 	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
 		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
+		tracer.Errorf("staticScrape", "%v", err)
 		return
 	}
 
 	err = legionReq.CheckKafka()
 	if err != nil {
+		tracer.Errorf("staticScrape", "%v", err)
 		return
 	}
 
-	legionResp := legionReq.GetStaticResponse()
-	// var legionRespBytes []byte
-	// legionRespBytes, err = json.Marshal(legionResp)
-	// if err != nil {
-	// 	// internal error
-	// 	tracer.Error("internal", err)
-	// 	return
-	// }
+	legionResp := legionReq.GetStaticResult()
 
 	const staticCachePath = `/v1/apis/static/cache`
 	cacheKey := fmt.Sprintf("[%s][%s]", legionReq.RespTopic, uuid.New().String())
@@ -60,6 +57,7 @@ func staticScrape(data []byte) (err error) {
 		staticCachePath,
 		queryData.Encode(),
 	)
+	notice.CreatedAt = time.Now()
 
 	var noticeBytes []byte
 	noticeBytes, err = json.Marshal(notice)
@@ -95,7 +93,7 @@ func staticScrapeAPI(ctx *gin.Context) {
 		return
 	}
 
-	legionResp := legionReq.GetStaticResponse()
+	legionResp := legionReq.GetStaticResult()
 	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 
@@ -122,6 +120,5 @@ func getStaticCache(ctx *gin.Context) {
 		return
 	}
 
-	// glob.RespCache.DeleteStatic(req.Key)
 	response(ctx, value, 1, glob.ScrapeSuccess, nil)
 }

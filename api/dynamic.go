@@ -33,14 +33,7 @@ func dynamicScrape(data []byte) (err error) {
 		return
 	}
 
-	legionResp := legionReq.GetDynamicResponse()
-	// var legionRespBytes []byte
-	// legionRespBytes, err = json.Marshal(legionResp)
-	// if err != nil {
-	// 	// internal error
-	// 	tracer.Error("internal", err)
-	// 	return
-	// }
+	legionResp := legionReq.GetDynamicResult()
 
 	const staticCachePath = `/v1/apis/dynamic/cache`
 	cacheKey := fmt.Sprintf("[%s][%s]", legionReq.RespTopic, uuid.New().String())
@@ -59,6 +52,7 @@ func dynamicScrape(data []byte) (err error) {
 		staticCachePath,
 		queryData.Encode(),
 	)
+	notice.CreatedAt = time.Now()
 
 	var noticeBytes []byte
 	noticeBytes, err = json.Marshal(notice)
@@ -100,7 +94,7 @@ func dynamicScrapeAPI(ctx *gin.Context) {
 		return
 	}
 
-	legionResp := legionReq.GetDynamicResponse()
+	legionResp := legionReq.GetDynamicResult()
 	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 

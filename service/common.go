@@ -18,6 +18,17 @@ type Notice struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
+type BasicAuth struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Retryable struct {
+	RetryerCount    int           `json:"retryerCount"`
+	RetryerTime     time.Duration `json:"retryerTime"`
+	RetryableStatus []int         `json:"retryableStatus"`
+}
+
 type LegionRequest struct {
 	SentAt    time.Time   `json:"sentAt"` // for kafka timeout task
 	RespTopic string      `json:"respTopic"`
@@ -42,22 +53,16 @@ type LegionRequest struct {
 	Retryable          *Retryable        `json:"retryable"`
 }
 
-type BasicAuth struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type Retryable struct {
-	RetryerCount    int           `json:"retryerCount"`
-	RetryerTime     time.Duration `json:"retryerTime"`
-	RetryableStatus []int         `json:"retryableStatus"`
-}
-
 type LegionResponse struct {
-	Req           *LegionRequest
-	ErrorMessages []string `json:"errorMessages"`
-	StatusCode    int      `json:"statusCode"`
-	Body          []byte   `json:"responseBody"`
+	StatusCode int               `json:"statusCode"`
+	Header     map[string]string `json:"header"`
+	Body       []byte            `json:"responseBody"`
+}
+
+type LegionResult struct {
+	ErrorMessage string          `json:"errorMessage"`
+	Request      *LegionRequest  `json:"request"`
+	Response     *LegionResponse `json:"response"`
 }
 
 type CacheRequest struct {

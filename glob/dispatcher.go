@@ -5,5 +5,8 @@ import (
 )
 
 func initDispatcher() {
-	dispatcher.Init(Config.Dispatcher.Brokers, Config.Dispatcher.GroupID)
+	dispatcher.Init(
+		Config.Dispatcher.Brokers,
+		dispatcher.InitSetDefaultGroupID(Config.Dispatcher.GroupID),
+	)
 }
