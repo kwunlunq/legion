@@ -6,10 +6,57 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
-	"gitlab.paradise-soft.com.tw/dwh/legion/model"
 )
 
-func DynamicScrape(req *model.Request) error {
+const (
+	Click       = "click"
+	DoubleClick = "double_cilck"
+	SendKeys    = "send_keys"
+	WaitReady   = "wait_ready"
+	WaitVisible = "wait_visible"
+)
+
+func (this *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
+	// var resp *http.Response
+	var body []byte
+	var err error
+	body, err = this.doDynamic()
+
+	legionResult = &LegionResult{}
+	legionResult.Request = this
+	if err != nil {
+		legionResult.ErrorMessage = err.Error()
+		return
+	}
+
+	legionResp := &LegionResponse{}
+	legionResp.Body = body
+	legionResult.Response = legionResp
+	return
+}
+
+// DynamicRequest
+func (this *LegionRequest) toDynamicRequest() (dynamicReq *DynamicRequest, err error) {
+	dynamicReq = &DynamicRequest{}
+	dynamicReq.RawURL = this.RawURL
+	dynamicReq.Target = this.Target
+	dynamicReq.Steps = this.Steps
+	return
+}
+
+func (this *LegionRequest) doDynamic() (body []byte, err error) {
+	defer func() {
+		if err != nil {
+			body = nil
+		}
+	}()
+
+	var dynamicReq *DynamicRequest
+	dynamicReq, err = this.toDynamicRequest()
+	if err != nil {
+		return
+	}
+
 	// Todo: err is not handled correctly
 	tab := glob.Pool.NewTab()
 	defer func() {
@@ -17,41 +64,41 @@ func DynamicScrape(req *model.Request) error {
 		glob.Pool.RemoveTab(tab)
 	}()
 
-	body, err := runTasks(tab.Context, req)
-
-	if req.Charset != "" {
-		body, err = glob.Decoder(body, req.Charset)
-	}
-
-	if err := glob.Cache.SetDynamicCache(req.TaskID, body); err != nil {
-		return err
-	}
-
-	req.Body = body
-	req.Error = err
-
-	return nil
-}
-
-func GetDynamicCache(req *model.CacheRequest) error {
-	value, err := glob.Cache.GetDynamicCache(req.TaskID)
+	body, err = dynamicReq.runTasks(tab.Context)
 	if err != nil {
-		return err
+		return
 	}
 
-	req.Content = string(value)
+	if this.Charset != "" {
+		body, err = glob.Decoder(body, this.Charset)
+		if err != nil {
+			return
+		}
+	}
 
-	return nil
+	return
 }
 
-func runTasks(ctx context.Context, req *model.Request) ([]byte, error) {
-	tasks, err := makeTasks(req.Steps)
+type DynamicRequest struct {
+	RawURL string  `json:"rawURL"`
+	Steps  []*Step `json:"steps"`
+	Target string  `json:"target"`
+}
+
+type Step struct {
+	Action string `json:"action"`
+	Target string `json:"target"`
+	Keys   string `json:"keys"`
+}
+
+func (req *DynamicRequest) runTasks(ctx context.Context) ([]byte, error) {
+	tasks, err := req.makeTasks(req.Steps)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = chromedp.Run(ctx, chromedp.Navigate(req.URL)); err != nil {
-		err = fmt.Errorf(`%s while navigating to "%s"`, err.Error(), req.URL)
+	if err = chromedp.Run(ctx, chromedp.Navigate(req.RawURL)); err != nil {
+		err = fmt.Errorf(`%s while navigating to "%s"`, err.Error(), req.RawURL)
 		return nil, err
 	}
 
@@ -73,21 +120,21 @@ func runTasks(ctx context.Context, req *model.Request) ([]byte, error) {
 	return []byte(result), nil
 }
 
-func makeTasks(steps []*model.Step) (chromedp.Tasks, error) {
+func (req *DynamicRequest) makeTasks(steps []*Step) (chromedp.Tasks, error) {
 	var err error
 	tasks := chromedp.Tasks{}
 
 	for _, step := range steps {
 		switch step.Action {
-		case model.Click:
+		case Click:
 			tasks = append(tasks, chromedp.Click(step.Target))
-		case model.DoubleClick:
+		case DoubleClick:
 			tasks = append(tasks, chromedp.DoubleClick(step.Target))
-		case model.SendKeys:
+		case SendKeys:
 			tasks = append(tasks, chromedp.SendKeys(step.Target, step.Keys))
-		case model.WaitReady:
+		case WaitReady:
 			tasks = append(tasks, chromedp.WaitReady(step.Target))
-		case model.WaitVisible:
+		case WaitVisible:
 			tasks = append(tasks, chromedp.WaitVisible(step.Target))
 		default:
 			err = fmt.Errorf(`Unsupported step action "%s"`, step.Action)

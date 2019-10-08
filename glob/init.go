@@ -1,6 +1,8 @@
 package glob
 
 import (
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -15,12 +17,17 @@ var Config struct {
 		MaxRetryCount int           `mapstructure:"max_retry_count"`
 		Timeout       time.Duration `mapstructure:"timeout"`
 	} `mapstructure:"chrome"`
+	GoRequest struct {
+		Timeout time.Duration `mapstructure:"timeout"`
+	} `mapstructure:"goRequest"`
 	Log struct {
 		Level string `mapstructure:"level"`
 	} `mapstructure:"log"`
 	WWW struct {
-		Addr string `mapstructure:"addr"`
-		Host string `mapstructure:"host"`
+		Addr         string `mapstructure:"addr"`
+		Host         string `mapstructure:"host"`
+		InternalHost string `mapstructure:"internalHost"`
+		ExternalHost string `mapstructure:"externalHost"`
 	} `mapstructure:"www"`
 	API struct {
 		Version string `mapstructure:"version"`
@@ -46,7 +53,7 @@ func Init() {
 	initTracer()
 	initBrowserOptions()
 	initPool()
-	initCache()
+	initRespCache()
 	initDispatcher()
 	initProxyService()
 }
@@ -61,8 +68,30 @@ func loadConfig() {
 	if err := viper.Unmarshal(&Config); err != nil {
 		panic(err)
 	}
+
+	Config.WWW.InternalHost = strings.TrimRight(Config.WWW.InternalHost, "/")
+	Config.WWW.ExternalHost = strings.TrimRight(Config.WWW.ExternalHost, "/")
+	Config.Log.Level = strings.ToLower(Config.Log.Level)
 }
 
 func initTracer() {
 	tracer.SetLevelWithName(Config.Log.Level)
+}
+
+func GetInternalHostURL() (u *url.URL) {
+	var err error
+	u, err = url.Parse(Config.WWW.InternalHost)
+	if err != nil {
+		panic(err)
+	}
+	return u
+}
+
+func GetExternalHostURL() (u *url.URL) {
+	var err error
+	u, err = url.Parse(Config.WWW.ExternalHost)
+	if err != nil {
+		panic(err)
+	}
+	return u
 }

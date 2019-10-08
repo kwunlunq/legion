@@ -1,8 +1,11 @@
 [chrome]
-headless=true
+# headless=true
 max_browsers=3
 max_tabs=5
 max_retry_count=3
+timeout='10s'
+
+[goRequest]
 timeout='10s'
 
 [log]
@@ -10,6 +13,8 @@ level='info'
 
 [www]
 addr=':9099'
+internalHost="http://127.0.0.1"
+externalHost="http://127.0.0.1"
 
 [api]
 version='v1'
@@ -24,3 +29,6 @@ dynamic_topic='legion_dynamic'
 static_topic='legion_static'
 dynamic_async_num=15
 static_async_num=15
+
+[proxyService]
+host="http://10.200.252.104:9091"
