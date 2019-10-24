@@ -6,24 +6,17 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 )
 
-const (
-	Click       = "click"
-	DoubleClick = "double_cilck"
-	SendKeys    = "send_keys"
-	WaitReady   = "wait_ready"
-	WaitVisible = "wait_visible"
-)
-
-func (this *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
+func (r *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
 	// var resp *http.Response
 	var body []byte
 	var err error
-	body, err = this.doDynamic()
+	body, err = r.doDynamic()
 
 	legionResult = &LegionResult{}
-	legionResult.Request = this
+	legionResult.Request = (*sdk.LegionRequest)(r)
 	if err != nil {
 		legionResult.ErrorMessage = err.Error()
 		return
@@ -31,20 +24,20 @@ func (this *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
 
 	legionResp := &LegionResponse{}
 	legionResp.Body = body
-	legionResult.Response = legionResp
+	legionResult.Response = (*sdk.LegionResponse)(legionResp)
 	return
 }
 
 // DynamicRequest
-func (this *LegionRequest) toDynamicRequest() (dynamicReq *DynamicRequest, err error) {
+func (r *LegionRequest) toDynamicRequest() (dynamicReq *DynamicRequest, err error) {
 	dynamicReq = &DynamicRequest{}
-	dynamicReq.RawURL = this.RawURL
-	dynamicReq.Target = this.Target
-	dynamicReq.Steps = this.Steps
+	dynamicReq.RawURL = r.RawURL
+	dynamicReq.Target = r.Target
+	dynamicReq.Steps = r.Steps
 	return
 }
 
-func (this *LegionRequest) doDynamic() (body []byte, err error) {
+func (r *LegionRequest) doDynamic() (body []byte, err error) {
 	defer func() {
 		if err != nil {
 			body = nil
@@ -52,7 +45,7 @@ func (this *LegionRequest) doDynamic() (body []byte, err error) {
 	}()
 
 	var dynamicReq *DynamicRequest
-	dynamicReq, err = this.toDynamicRequest()
+	dynamicReq, err = r.toDynamicRequest()
 	if err != nil {
 		return
 	}
@@ -69,8 +62,8 @@ func (this *LegionRequest) doDynamic() (body []byte, err error) {
 		return
 	}
 
-	if this.Charset != "" {
-		body, err = glob.Decoder(body, this.Charset)
+	if r.Charset != "" {
+		body, err = glob.Decoder(body, r.Charset)
 		if err != nil {
 			return
 		}
@@ -80,15 +73,9 @@ func (this *LegionRequest) doDynamic() (body []byte, err error) {
 }
 
 type DynamicRequest struct {
-	RawURL string  `json:"rawURL"`
-	Steps  []*Step `json:"steps"`
-	Target string  `json:"target"`
-}
-
-type Step struct {
-	Action string `json:"action"`
-	Target string `json:"target"`
-	Keys   string `json:"keys"`
+	RawURL string      `json:"rawURL"`
+	Steps  []*sdk.Step `json:"steps"`
+	Target string      `json:"target"`
 }
 
 func (req *DynamicRequest) runTasks(ctx context.Context) ([]byte, error) {
@@ -120,21 +107,21 @@ func (req *DynamicRequest) runTasks(ctx context.Context) ([]byte, error) {
 	return []byte(result), nil
 }
 
-func (req *DynamicRequest) makeTasks(steps []*Step) (chromedp.Tasks, error) {
+func (req *DynamicRequest) makeTasks(steps []*sdk.Step) (chromedp.Tasks, error) {
 	var err error
 	tasks := chromedp.Tasks{}
 
 	for _, step := range steps {
 		switch step.Action {
-		case Click:
+		case sdk.Click:
 			tasks = append(tasks, chromedp.Click(step.Target))
-		case DoubleClick:
+		case sdk.DoubleClick:
 			tasks = append(tasks, chromedp.DoubleClick(step.Target))
-		case SendKeys:
+		case sdk.SendKeys:
 			tasks = append(tasks, chromedp.SendKeys(step.Target, step.Keys))
-		case WaitReady:
+		case sdk.WaitReady:
 			tasks = append(tasks, chromedp.WaitReady(step.Target))
-		case WaitVisible:
+		case sdk.WaitVisible:
 			tasks = append(tasks, chromedp.WaitVisible(step.Target))
 		default:
 			err = fmt.Errorf(`Unsupported step action "%s"`, step.Action)

@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"math"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
@@ -44,30 +46,39 @@ func InitSubscribe() {
 	go func() {
 		eg, _ := errgroup.WithContext(context.Background())
 		eg.Go(func() (err error) {
-			err = dispatcher.Subscribe(glob.Config.Dispatcher.DynamicTopic,
+			err = dispatcher.SubscribeWithRetry(glob.Config.Dispatcher.DynamicTopic,
 				dynamicScrape,
+				10,
+				getFailRetryDuration,
 				dispatcher.ConsumerOmitOldMsg(),
 				dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.DynamicAsyncNum),
 			)
-			// if err != nil {
-			tracer.Errorf("dispatcher", "dynamic scrape: %v", err)
-			// }
+			if err != nil {
+				tracer.Errorf("dispatcher", "dynamic scrape: %v", err)
+			}
 			return
 		})
 
 		eg.Go(func() (err error) {
-			err = dispatcher.Subscribe(glob.Config.Dispatcher.StaticTopic,
+			err = dispatcher.SubscribeWithRetry(glob.Config.Dispatcher.StaticTopic,
 				staticScrape,
+				10,
+				getFailRetryDuration,
 				dispatcher.ConsumerOmitOldMsg(),
 				dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.StaticAsyncNum),
 			)
-			// if err != nil {
-			tracer.Errorf("dispatcher", "static scrape: %v", err)
-			// }
+			if err != nil {
+				tracer.Errorf("dispatcher", "static scrape: %v", err)
+			}
 			return
 		})
 
 		err := eg.Wait()
 		tracer.Errorf("dispatcher", "scrape error: %v", err)
 	}()
+}
+
+func getFailRetryDuration(failCount int) time.Duration {
+	return time.Duration(math.Sqrt(float64(failCount))) * time.
+		Second
 }

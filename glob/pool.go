@@ -1,7 +1,10 @@
 package glob
 
 import (
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
@@ -20,6 +23,14 @@ type pool struct {
 
 func initPool() {
 	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
+	go func() {
+		stopChan := make(chan os.Signal, 1)
+		signal.Notify(stopChan, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
+		<-stopChan
+		for _, pool := range Pool.browsers {
+			pool.Cancel()
+		}
+	}()
 }
 
 func NewPool(maxBrowsers, maxTabs int) *pool {

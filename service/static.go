@@ -10,6 +10,7 @@ import (
 
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/glob/gorequest"
+	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 )
 
 const (
@@ -22,14 +23,14 @@ const (
 	TypeMultipart = "multipart" // "multipart/form-data"
 )
 
-func (this *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
+func (r *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
 	var resp *http.Response
 	var body []byte
 	var err error
-	resp, body, err = this.doStatic()
+	resp, body, err = r.doStatic()
 
 	legionResult = &LegionResult{}
-	legionResult.Request = this
+	legionResult.Request = (*sdk.LegionRequest)(r)
 	if err != nil {
 		legionResult.ErrorMessage = err.Error()
 		return
@@ -43,72 +44,72 @@ func (this *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
 	}
 
 	legionResp.Body = body
-	legionResult.Response = legionResp
+	legionResult.Response = (*sdk.LegionResponse)(legionResp)
 	return
 }
 
-func (this *LegionRequest) toGoRequest() (goReq *gorequest.SuperAgent, err error) {
+func (r *LegionRequest) toGoRequest() (goReq *gorequest.SuperAgent, err error) {
 	goReq = glob.NewDefaultGoReq()
-	goReq.Url = this.RawURL
-	goReq.QueryData = this.QueryData
+	goReq.Url = r.RawURL
+	goReq.QueryData = r.QueryData
 
 	goReq.Method = "GET"
-	if this.Method != "" {
-		goReq.Method = this.Method
+	if r.Method != "" {
+		goReq.Method = r.Method
 	}
 
-	if this.TargetType != "" {
-		goReq.Type(this.TargetType)
+	if r.TargetType != "" {
+		goReq.Type(r.TargetType)
 	}
 
-	// goReq.Send(this.Body)
-	goReq.SendString(string(this.Body))
+	// goReq.Send(r.Body)
+	goReq.SendString(string(r.Body))
 
-	for k, v := range this.Header {
+	for k, v := range r.Header {
 		goReq.Set(k, v)
 	}
 
-	goReq.AddCookies(this.Cookies)
+	goReq.AddCookies(r.Cookies)
 
-	if this.BasicAuth != nil {
-		goReq.SetBasicAuth(this.BasicAuth.Username, this.BasicAuth.Password)
+	if r.BasicAuth != nil {
+		goReq.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
 	}
 
-	if this.Timeout != 0 {
-		goReq.Timeout(this.Timeout)
+	if r.Timeout != 0 {
+		goReq.Timeout(r.Timeout)
 	} else {
 		goReq.Timeout(glob.Config.GoRequest.Timeout)
 	}
 
-	if len(this.ProxyLocations) > 0 {
+	if len(r.ProxyLocations) > 0 {
 		var proxies []string
-		proxies, err = glob.GetProxiecErr(len(this.ProxyLocations), this.ProxyLocations)
+		proxies, err = glob.GetProxies(len(r.ProxyLocations), r.ProxyLocations)
 		if err != nil {
 			return nil, err
 		}
-		this.Proxies = append(this.Proxies, proxies...)
+		goReq.Proxy(proxies...)
 	}
 
-	if len(this.Proxies) > 0 {
-		goReq.Proxy(this.Proxies...)
+	if len(r.Proxies) > 0 {
+		goReq.Proxy(r.Proxies...)
 	}
 
-	if this.InsecureSkipVerify {
+	if r.InsecureSkipVerify {
 		goReq.TLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
-	if this.Retryable != nil {
+	if r.Retryable != nil {
 		goReq.Retry(
-			this.Retryable.RetryerCount,
-			this.Retryable.RetryerTime,
-			this.Retryable.RetryableStatus...,
+			r.Retryable.RetryCount,
+			r.Retryable.RetryTime,
+			r.Retryable.RetryableStatus...,
 		)
 	}
 
 	return goReq, nil
 }
 
-func (this *LegionRequest) doStatic() (resp *http.Response, body []byte, err error) {
+func (r *LegionRequest) doStatic() (resp *http.Response, body []byte, err error) {
 	defer func() {
 		if err != nil {
 			resp = nil
@@ -116,7 +117,7 @@ func (this *LegionRequest) doStatic() (resp *http.Response, body []byte, err err
 		}
 	}()
 
-	goReq, err := this.toGoRequest()
+	goReq, err := r.toGoRequest()
 	if err != nil {
 		return
 	}
@@ -128,17 +129,17 @@ func (this *LegionRequest) doStatic() (resp *http.Response, body []byte, err err
 		return
 	}
 
-	if this.Target != "" {
+	if r.Target != "" {
 		var goDoc *goquery.Document
 		goDoc, err = goquery.NewDocumentFromReader(bytes.NewReader(body))
 		if err != nil {
 			return
 		}
-		body = []byte(goDoc.Find(this.Target).Text())
+		body = []byte(goDoc.Find(r.Target).Text())
 	}
 
-	if this.Charset != "" {
-		body, err = glob.Decoder(body, this.Charset)
+	if r.Charset != "" {
+		body, err = glob.Decoder(body, r.Charset)
 		if err != nil {
 			return
 		}

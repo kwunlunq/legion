@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
@@ -40,7 +41,9 @@ func dynamicScrape(data []byte) (err error) {
 	queryData := url.Values{}
 	queryData.Add("key", cacheKey)
 
-	notice := &service.Notice{}
+	notice := &sdk.Notice{
+		UUID: legionReq.UUID,
+	}
 	notice.InternalURL = fmt.Sprintf("%s%s?%s",
 		glob.Config.WWW.InternalHost,
 		staticCachePath,
