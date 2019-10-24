@@ -3,10 +3,6 @@
 
 debug
 
-go\.mod
-
-go\.sum
-
 app\.conf
 
 xunya-legion
