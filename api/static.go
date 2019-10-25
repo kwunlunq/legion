@@ -23,6 +23,7 @@ func staticScrape(data []byte) (err error) {
 	}
 
 	now := time.Now()
+	// 拋棄逾時任務
 	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
 		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
 		tracer.Errorf("staticScrape", "%v", err)
@@ -42,7 +43,9 @@ func staticScrape(data []byte) (err error) {
 	queryData := url.Values{}
 	queryData.Add("key", cacheKey)
 
-	notice := &service.Notice{}
+	notice := &service.Notice{
+		UUID: legionReq.UUID,
+	}
 	notice.InternalURL = fmt.Sprintf("%s%s%s?%s",
 		glob.Config.WWW.InternalHost,
 		glob.Config.WWW.Addr,
@@ -74,7 +77,10 @@ func staticScrape(data []byte) (err error) {
 		return
 	}
 
-	err = dispatcher.Send(legionReq.RespTopic, noticeBytes)
+	err = dispatcher.Send(legionReq.RespTopic, noticeBytes,
+		// TODO DELETE
+		dispatcher.ProducerEnsureOrder(),
+	)
 
 	if err != nil {
 		// internal error

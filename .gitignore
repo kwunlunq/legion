@@ -3,12 +3,10 @@
 
 debug
 
-go\.mod
-
-go\.sum
-
 app\.conf
 
 xunya-legion
 
 legion.exe
+
+legion

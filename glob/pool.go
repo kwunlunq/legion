@@ -20,6 +20,7 @@ type pool struct {
 
 func initPool() {
 	Pool = NewPool(Config.Chrome.MaxBrowsers, Config.Chrome.MaxTabs)
+
 }
 
 func NewPool(maxBrowsers, maxTabs int) *pool {
@@ -65,6 +66,7 @@ func (p *pool) NewTab() *Tab {
 			break
 		}
 	}
+
 	return tab
 }
 
@@ -79,5 +81,14 @@ func (p *pool) RemoveTab(tab *Tab) {
 				return
 			}
 		}
+	}
+}
+
+func (p *pool) Close() {
+	p.Lock()
+	defer p.Unlock()
+
+	for _, p := range p.browsers {
+		p.Cancel()
 	}
 }
