@@ -36,7 +36,7 @@ func dynamicScrape(data []byte) (err error) {
 
 	legionResp := legionReq.GetDynamicResult()
 
-	const staticCachePath = `/v1/apis/dynamic/cache`
+	const dynamicCachePath = `/v1/apis/dynamic/cache`
 	cacheKey := fmt.Sprintf("[%s][%s]", legionReq.RespTopic, uuid.New().String())
 	queryData := url.Values{}
 	queryData.Add("key", cacheKey)
@@ -44,15 +44,17 @@ func dynamicScrape(data []byte) (err error) {
 	notice := &sdk.Notice{
 		UUID: legionReq.UUID,
 	}
-	notice.InternalURL = fmt.Sprintf("%s%s?%s",
+	notice.InternalURL = fmt.Sprintf("%s%s%s?%s",
 		glob.Config.WWW.InternalHost,
-		staticCachePath,
+		glob.Config.WWW.Addr,
+		dynamicCachePath,
 		queryData.Encode(),
 	)
 
-	notice.ExternalURL = fmt.Sprintf("%s%s?%s",
+	notice.ExternalURL = fmt.Sprintf("%s%s%s?%s",
 		glob.Config.WWW.ExternalHost,
-		staticCachePath,
+		glob.Config.WWW.Addr,
+		dynamicCachePath,
 		queryData.Encode(),
 	)
 	notice.CreatedAt = time.Now()
@@ -73,7 +75,10 @@ func dynamicScrape(data []byte) (err error) {
 		return
 	}
 
-	err = dispatcher.Send(legionReq.RespTopic, noticeBytes)
+	err = dispatcher.Send(legionReq.RespTopic, noticeBytes,
+		// TODO DELETE
+		dispatcher.ProducerEnsureOrder(),
+	)
 	if err != nil {
 		// internal error
 		tracer.Error("internal", err)

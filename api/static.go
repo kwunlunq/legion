@@ -77,7 +77,10 @@ func staticScrape(data []byte) (err error) {
 		return
 	}
 
-	err = dispatcher.Send(legionReq.RespTopic, noticeBytes)
+	err = dispatcher.Send(legionReq.RespTopic, noticeBytes,
+		// TODO DELETE
+		dispatcher.ProducerEnsureOrder(),
+	)
 
 	if err != nil {
 		// internal error

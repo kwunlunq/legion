@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,9 +20,10 @@ func main() {
 			panic(err)
 		}
 	}()
-	stopChan := make(chan os.Signal, 1)
-	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
-	<-stopChan
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
+	<-quit
+	log.Println("Graceful shutdown start")
 	glob.Pool.Close()
-	fmt.Println("1234")
+	log.Println("Graceful shutdown success")
 }

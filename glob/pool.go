@@ -66,6 +66,7 @@ func (p *pool) NewTab() *Tab {
 			break
 		}
 	}
+
 	return tab
 }
 
