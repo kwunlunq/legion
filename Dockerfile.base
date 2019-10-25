@@ -10,12 +10,18 @@ RUN mkdir /$appname
 WORKDIR /$appname
 RUN ls -l
 
-COPY . .
+
+COPY go.mod .
+COPY go.sum .
 
 RUN ls -l
 
 RUN go mod download &&\
     echo "go mod Completed"
+
+COPY . .
+
+RUN ls -l
 
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $appname &&\
     ls -l
