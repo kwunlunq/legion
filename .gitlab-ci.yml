@@ -15,11 +15,12 @@ create_image_job:
     - ls -l
     - server=reg.paradise-soft.com.tw:5000
     - appname=xunya-legion
-    - docker build . -f Dockerfile.base -t base/$appname:$CI_COMMIT_REF_NAME --build-arg branch=$CI_COMMIT_REF_NAME
-    - docker create --name base base/$appname:$CI_COMMIT_REF_NAME
-    - docker cp base:/$appname/$appname .
+    - docker build . -f Dockerfile.base -t $server/$appname_base:$CI_COMMIT_REF_NAME --build-arg
+    - branch=$CI_COMMIT_REF_NAME
+    - docker create --name xunya-legion-base $server/$appname_base:$CI_COMMIT_REF_NAME
+    - docker cp xunya-legion-base:/$appname/$appname .
+    - docker rm xunya-legion-base
     - docker build . -f Dockerfile -t $server/$appname:$CI_COMMIT_REF_NAME
     - docker push $server/$appname:$CI_COMMIT_REF_NAME
-    - docker rm base
     - rm $appname
     - docker image rm $server/$appname:$CI_COMMIT_REF_NAME
