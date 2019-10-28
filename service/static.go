@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -37,6 +38,7 @@ func (r *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
 	}
 
 	legionResp := &LegionResponse{}
+	legionResp.FinishedAt = time.Now()
 	legionResp.StatusCode = resp.StatusCode
 	legionResp.Header = make(map[string]string, len(resp.Header))
 	for key, val := range resp.Header {
