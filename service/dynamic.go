@@ -26,6 +26,7 @@ func (r *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
 	}
 
 	legionResp := &LegionResponse{}
+	legionResp.FinishedAt = time.Now()
 	legionResp.StatusCode = int(response.Status)
 	legionResp.Header = make(map[string]string, len(response.Headers))
 	for key, val := range response.Headers {
