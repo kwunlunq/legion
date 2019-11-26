@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ExpiredTime = time.Minute * 1
+	ExpiredTime = time.Minute * 5
 )
 
 // Notice 透過 kafka 通知使用者取資料 所傳遞的資訊
