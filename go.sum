@@ -217,6 +217,8 @@ gitlab.paradise-soft.com.tw/glob/dispatcher v1.10.10 h1:w8sAA6i6X+JcgopgfpBqDSNC
 gitlab.paradise-soft.com.tw/glob/dispatcher v1.10.10/go.mod h1:S4pfGvN4Vyrqgn7GJt4bTLD0u8Bh2RW6JxXJ313L/MU=
 gitlab.paradise-soft.com.tw/glob/dispatcher v1.10.12 h1:NI0vCyL+uwFgn3pAKbm1BWjYTpAtOd3qe/M24QGSfp0=
 gitlab.paradise-soft.com.tw/glob/dispatcher v1.10.12/go.mod h1:S4pfGvN4Vyrqgn7GJt4bTLD0u8Bh2RW6JxXJ313L/MU=
+gitlab.paradise-soft.com.tw/glob/dispatcher v1.11.2 h1:gTF5qMO3RNsrY2IgHjG9B+zZ+yv6HeK/Z0hHAJztFIQ=
+gitlab.paradise-soft.com.tw/glob/dispatcher v1.11.2/go.mod h1:S4pfGvN4Vyrqgn7GJt4bTLD0u8Bh2RW6JxXJ313L/MU=
 gitlab.paradise-soft.com.tw/glob/gorequest v0.0.0-20190826015942-2399ce018ef1 h1:yNNsy4QdWuspVQViKfhFzvJveBd+GUb33foZgeH6yY0=
 gitlab.paradise-soft.com.tw/glob/gorequest v0.0.0-20190826015942-2399ce018ef1/go.mod h1:wMDF0nK3dnfqln+KR5WTBPXHS1m2XpgvQCi5KdjQ1PM=
 gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0 h1:85GCpzH6uxZxpbPbSJWLIPWlzS9A4ODrVAg7SRfI290=
@@ -231,6 +233,8 @@ gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.1 h1:duSLgwHltwYCYBBgMojKAzQ++L
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.1/go.mod h1:CFS+tvzPGa59wvQFf6pLU/TqW8JXlWahwJvexXxuv8o=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.2 h1:kxK3YRAr30IxV4L5LNvgxCBUh4uH9aDEx7kfSUaqZys=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.2/go.mod h1:CFS+tvzPGa59wvQFf6pLU/TqW8JXlWahwJvexXxuv8o=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.3 h1:FMyL7Y7IPh/JPqlEW2Qwf9HYYSINObi3TlN+DK9qvhM=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.3/go.mod h1:QkNob/ZwdFSoTUgtXxjo/SQuXF2am/7KxH9PGNXi80k=
 gitlab.paradise-soft.com.tw/glob/tracer v1.1.0 h1:KPPJruMf5nS3AJ3tvTRjUWMvlk1i63PCcE9AP1S4Dac=
 gitlab.paradise-soft.com.tw/glob/tracer v1.1.0/go.mod h1:LuMC12pj0pSPPL/Wo8zxIkX6HtLyGgr3/JN17M4am0I=
 gitlab.paradise-soft.com.tw/glob/utils v0.0.0-20190325034131-c2e91646f0da/go.mod h1:Zfu6r776YIji3HORqb1lExrRoT+weJKPyokwQksUSP0=
