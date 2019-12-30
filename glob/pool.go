@@ -92,3 +92,7 @@ func (p *pool) Close() {
 		p.Cancel()
 	}
 }
+
+func (p *pool) GetBrowsersInfo() []*Browser {
+	return p.browsers
+}

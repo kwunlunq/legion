@@ -96,6 +96,7 @@ func (req *DynamicRequest) runTasks(ctx context.Context) (response *network.Resp
 		return nil, nil, err
 	}
 	response = &network.Response{}
+
 	if err = chromedp.Run(ctx, chromeTask(ctx, req.RawURL, response)); err != nil {
 		err = fmt.Errorf(`%s while navigating to "%s"`, err.Error(), req.RawURL)
 		return nil, nil, err
