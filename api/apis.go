@@ -30,6 +30,7 @@ func InitAPIS() {
 		dynamic := apis.Group("/dynamic")
 		{
 			dynamic.POST("/scrape", dynamicScrapeAPI)
+			dynamic.GET("/info", getDynamicInfo)
 			dynamic.GET("/cache", getDynamicCache)
 		}
 

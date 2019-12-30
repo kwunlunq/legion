@@ -106,6 +106,18 @@ func dynamicScrapeAPI(ctx *gin.Context) {
 	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 
+type BrowserInfo struct {
+	TabCount int `json:"tabCount"`
+}
+
+func getDynamicInfo(ctx *gin.Context) {
+	var result []BrowserInfo
+	for _, browser := range glob.Pool.GetBrowsersInfo() {
+		result = append(result, BrowserInfo{TabCount: len(browser.Tabs)})
+	}
+	response(ctx, result, 1, glob.ScrapeSuccess, nil)
+}
+
 func getDynamicCache(ctx *gin.Context) {
 	var err error
 	req := &service.CacheRequest{}

@@ -5,6 +5,7 @@ import "github.com/chromedp/chromedp"
 var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.NoFirstRun,
 	chromedp.NoDefaultBrowserCheck,
+	// chromedp.ProxyServer("http://172.104.227.131:80"),
 
 	// After Puppeteer's default behavior.
 	chromedp.Flag("disable-background-networking", true),

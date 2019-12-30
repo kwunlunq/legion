@@ -18,6 +18,7 @@ func NewBrowser() (*Browser, error) {
 	ctx, _ := chromedp.NewExecAllocator(context.Background(), browserOptions...)
 
 	b.Context, b.Cancel = chromedp.NewContext(ctx)
+
 	if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
 		return nil, err
 	}
