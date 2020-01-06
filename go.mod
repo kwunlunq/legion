@@ -13,7 +13,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/google/uuid v1.1.1
 	github.com/spf13/viper v1.4.0
-	gitlab.paradise-soft.com.tw/dwh/proxy v1.1.0
+	gitlab.paradise-soft.com.tw/dwh/proxy v1.2.1
 	gitlab.paradise-soft.com.tw/glob/dispatcher v1.11.2
 	gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0
 	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.3
@@ -21,4 +21,5 @@ require (
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	golang.org/x/sys v0.0.0-20190613124609-5ed2794edfdc // indirect
 	golang.org/x/text v0.3.0
+	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 )

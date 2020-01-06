@@ -20,6 +20,11 @@ func main() {
 			panic(err)
 		}
 	}()
+	go func() {
+		if err := api.ListenTCP(8081); err != nil {
+			panic(err)
+		}
+	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
 	<-quit
