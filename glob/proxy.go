@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ProxyDefaultAliveMinute = 30
+	ProxyDefaultAliveMinute = 5
 )
 
 var ErrCantGetProxy = errors.New("can't get proxy")
@@ -36,6 +36,7 @@ func GetProxy(countryCode ...string) (proxy string, err error) {
 		proxytool.SetCountryCode(countryCode...),
 		proxytool.SetAliveMin(ProxyDefaultAliveMinute),
 		proxytool.SetNumber(1),
+		proxytool.SetPassSites("leisu"),
 	)
 
 	var proxies []string
