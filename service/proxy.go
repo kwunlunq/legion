@@ -58,11 +58,11 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 	}
 	proxyList := []string{u.Host}
 	// proxyList = append(proxyList, "46.101.78.176:24045")
-	proxyList = []string{
-		"46.101.78.176:24045",
-		// "168.149.142.170:8080",
-		// "198.199.119.119:3128",
-	}
+	// proxyList = []string{
+	// 	"46.101.78.176:24045",
+	// 	// "168.149.142.170:8080",
+	// 	// "198.199.119.119:3128",
+	// }
 	// , "180.168.13.26:8000"
 	// 67.205.149.230:8080
 	var outConns []net.Conn
