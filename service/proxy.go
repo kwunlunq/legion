@@ -38,7 +38,7 @@ func TCPCallback(inConn net.Conn) {
 	}
 }
 func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err error) {
-	inAddr := (*inConn).RemoteAddr().String()
+	// inAddr := (*inConn).RemoteAddr().String()
 	inLocalAddr := (*inConn).LocalAddr().String()
 	//防止死循环
 	if IsDeadLoop(inLocalAddr, req.Host) {
@@ -57,38 +57,64 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 		return
 	}
 	proxyList := []string{u.Host}
-	// proxyList := []string{"46.101.78.176:24045"}
+	// proxyList = append(proxyList, "46.101.78.176:24045")
+	proxyList = []string{
+		"46.101.78.176:24045",
+		// "168.149.142.170:8080",
+		// "198.199.119.119:3128",
+	}
+	// , "180.168.13.26:8000"
+	// 67.205.149.230:8080
+	var outConns []net.Conn
+	var outConnsReader []io.ReadWriter
 
 	for _, proxy := range proxyList {
 		var outConn net.Conn
-		// var _outConn interface{}
+
 		outConn, err = net.DialTimeout("tcp", proxy, time.Duration(5)*time.Second)
 
-		// _outConn, err = s.outPool.Pool.Get()
-		// if err == nil {
-		// 	outConn = _outConn.(net.Conn)
-		// }
 		if err != nil {
 			tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
-			glob.CloseConn(inConn)
 			return
 		}
-
-		outAddr := outConn.RemoteAddr().String()
-		outLocalAddr := outConn.LocalAddr().String()
-
 		outConn.Write(req.HeadBuf)
-		glob.IoBind(*inConn, outConn, func(isSrcErr bool, err error) {
-			if err != nil {
-				// log.Println(err)
-			}
-			tracer.Infof("testrp", "conn %s - %s - %s -%s released [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr,
-				req.Host)
-			glob.CloseConn(inConn)
-			glob.CloseConn(&outConn)
-		}, func(n int, d bool) {}, 0)
-		// log.Printf("conn %s - %s - %s - %s connected [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr, req.Host)
+		outConns = append(outConns, outConn)
+		outConnsReader = append(outConnsReader, outConn)
 	}
+
+	glob.IoBind(*inConn, outConnsReader, func(isSrcErr bool, err error) {
+		if err != nil {
+			// log.Println(err)
+		}
+		// tracer.Infof("testrp", "conn %s - %s - %s -%s released [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr,
+		// 	req.Host)
+		tracer.Infof("testrp", "close")
+		glob.CloseConn(inConn)
+		for _, outConn := range outConns {
+			glob.CloseConn(&outConn)
+		}
+	}, func(n int, d bool) {}, 0)
+
+	// for _, outConn := range outConns {
+	// 	// var outConn net.Conn
+	// 	// // var _outConn interface{}
+	// 	// outConn, err = net.DialTimeout("tcp", proxy, time.Duration(5)*time.Second)
+	// 	//
+	// 	// // _outConn, err = s.outPool.Pool.Get()
+	// 	// // if err == nil {
+	// 	// // 	outConn = _outConn.(net.Conn)
+	// 	// // }
+	// 	// if err != nil {
+	// 	// 	tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
+	// 	// 	glob.CloseConn(inConn)
+	// 	// 	return
+	// 	// }
+	//
+	// 	// outAddr := outConn.RemoteAddr().String()
+	// 	// outLocalAddr := outConn.LocalAddr().String()
+	//
+	// 	// log.Printf("conn %s - %s - %s - %s connected [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr, req.Host)
+	// }
 
 	return
 }
