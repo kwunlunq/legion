@@ -16,11 +16,14 @@ func initProxyService() {
 	proxytool.InitProxyService("1000", "5f666d3c-8523-b9dbb86d-05c8-05df2de3", Config.ProxyService.Host)
 }
 
-func GetProxies(num int, countryCode []string) (proxies []string, err error) {
-	collector := proxytool.NewCollector(
+func GetProxies(num int, countryCode []string, collectors ...func(*proxytool.Collector)) (proxies []string, err error) {
+	collectors = append(collectors,
 		proxytool.SetCountryCode(countryCode...),
 		proxytool.SetAliveMin(ProxyDefaultAliveMinute),
 		proxytool.SetNumber(num),
+	)
+	collector := proxytool.NewCollector(
+		collectors...,
 	)
 
 	proxies, err = collector.GetProxys()
@@ -35,7 +38,7 @@ func GetProxy(countryCode ...string) (proxy string, err error) {
 	collector := proxytool.NewCollector(
 		proxytool.SetCountryCode(countryCode...),
 		proxytool.SetAliveMin(ProxyDefaultAliveMinute),
-		proxytool.SetNumber(3),
+		proxytool.SetNumber(1),
 		proxytool.SetPassSites("leisu"),
 	)
 

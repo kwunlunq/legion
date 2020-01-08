@@ -3,7 +3,6 @@ package glob
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"runtime/debug"
 	"strings"
@@ -181,9 +180,9 @@ func ioCopy_bak(step string, dst io.ReadWriter, srcs []io.ReadWriter, sfn func(i
 	fn ...func(count int)) (written int64,
 	isSrcErr bool,
 	err error) {
-	defer func() {
-		fmt.Println(step, " end")
-	}()
+	// defer func() {
+	// 	fmt.Println(step, " end")
+	// }()
 
 	isSuccess := false
 	_ = isSuccess
@@ -200,7 +199,7 @@ func ioCopy_bak(step string, dst io.ReadWriter, srcs []io.ReadWriter, sfn func(i
 				isFirst := true
 				for {
 					nr, er := src.Read(buf)
-					fmt.Println(step)
+					// fmt.Println(step)
 					// fmt.Println(string(buf))
 					lock.Lock()
 
@@ -211,7 +210,7 @@ func ioCopy_bak(step string, dst io.ReadWriter, srcs []io.ReadWriter, sfn func(i
 
 					if isFirst && (strings.HasPrefix(string(buf), "HTTP/1.1 200") || strings.HasPrefix(string(buf), "HTTP/1.0 200")) {
 						isFirst = false
-						fmt.Println(isFirst)
+						// fmt.Println(isFirst)
 						sfn(src)
 					}
 
@@ -259,15 +258,15 @@ func ioCopy_bak(step string, dst io.ReadWriter, srcs []io.ReadWriter, sfn func(i
 
 func ioCopy2(step string, dst io.Writer, src io.Reader) (written int64, isSrcErr bool,
 	err error) {
-	defer func() {
-		fmt.Println(step, " end")
-	}()
+	// defer func() {
+	// 	fmt.Println(step, " end")
+	// }()
 
 	buf := make([]byte, 32*1024)
 
 	for {
 		nr, er := src.Read(buf)
-		fmt.Println(step)
+		// fmt.Println(step)
 
 		if nr > 0 {
 			nw, ew := dst.Write(buf[0:nr])
