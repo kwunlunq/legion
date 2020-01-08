@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/dwh/proxy/proxy"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
@@ -46,18 +48,22 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 		err = fmt.Errorf("dead loop detected , %s", req.Host)
 		return
 	}
-	proxy, err := glob.GetProxy()
+	proxys, err := glob.GetProxies(3, nil, proxy.SetPassSites("leisu"))
 	if err != nil {
 		tracer.Errorf("testrp", "get proxy , err:%s", err)
 		glob.CloseConn(inConn)
 		return
 	}
-	u, err := url.Parse(proxy)
-	if err != nil {
-		return
+	var proxyList []string
+	for _, proxy := range proxys {
+		u, err := url.Parse(proxy)
+		if err != nil {
+			return err
+		}
+		proxyList = append(proxyList, u.Host)
 	}
-	proxyList := []string{u.Host}
-	// proxyList = append(proxyList, "46.101.78.176:24045")
+
+	proxyList = append(proxyList, "46.101.79.148:24045")
 	// proxyList = []string{
 	// 	"46.101.78.176:24045",
 	// 	// "168.149.142.170:8080",
@@ -67,6 +73,7 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 	// 67.205.149.230:8080
 	var outConns []net.Conn
 	var outConnsReader []io.ReadWriter
+	tracer.Infof("testrp", "conn %s", proxyList)
 
 	for _, proxy := range proxyList {
 		var outConn net.Conn
@@ -75,11 +82,16 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 
 		if err != nil {
 			tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
-			return
 		}
 		outConn.Write(req.HeadBuf)
 		outConns = append(outConns, outConn)
 		outConnsReader = append(outConnsReader, outConn)
+	}
+
+	if len(outConns) == 0 {
+		tracer.Errorf("testrp", "no proxy can used")
+		err = errors.New("no proxy can used")
+		return
 	}
 
 	glob.IoBind(*inConn, outConnsReader, func(isSrcErr bool, err error) {
