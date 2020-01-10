@@ -14,7 +14,7 @@ import (
 )
 
 func IoBind(dst io.ReadWriter, srcs []io.ReadWriter, fn func(isSrcErr bool, err error), cfn func(count int,
-	isPositive bool), bytesPreSec float64) {
+	isPositive bool)) {
 	var one = &sync.Once{}
 	// var srcReader []io.Reader
 	// for _, src := range srcs {
@@ -41,16 +41,7 @@ func IoBind(dst io.ReadWriter, srcs []io.ReadWriter, fn func(isSrcErr bool, err 
 
 				_, isSrcErr, err = ioCopy2("2", src, dst)
 				// fmt.Println("8")
-				// if bytesPreSec > 0 {
-				// 	newReader := NewReader(dst)
-				// 	newReader.SetRateLimit(bytesPreSec)
-				// 	_, isSrcErr, err = ioCopy("2", src, []io.Reader{newReader}, func(c int) {
-				// 		cfn(c, true)
-				// 	})
-				// } else {
-				//
-				//
-				// }
+
 				if err != nil {
 					one.Do(func() {
 						fn(isSrcErr, err)
@@ -60,51 +51,13 @@ func IoBind(dst io.ReadWriter, srcs []io.ReadWriter, fn func(isSrcErr bool, err 
 		}, func(c int) {
 			cfn(c, false)
 		})
-		// fmt.Println("7")
-		// if bytesPreSec > 0 {
-		// 	newreader := NewReader(src)
-		// 	newreader.SetRateLimit(bytesPreSec)
-		// 	_, isSrcErr, err = ioCopy("1", dst, []io.Reader{newreader}, func(c int) {
-		// 		cfn(c, false)
-		// 	})
-		//
-		// } else {
-		//
-		// }
 		if err != nil {
 			one.Do(func() {
 				fn(isSrcErr, err)
 			})
 		}
 	}()
-	// go func() {
-	// 	defer func() {
-	// 		if e := recover(); e != nil {
-	// 			tracer.Errorf("testrp", "IoBind crashed , err : %s , \ntrace:%s", e, string(debug.Stack()))
-	// 		}
-	// 	}()
-	// 	var err error
-	// 	var isSrcErr bool
-	// 	_, isSrcErr, err = ioCopy("2", src, []io.Reader{dst}, func(c int) {
-	// 		cfn(c, true)
-	// 	})
-	// 	fmt.Println("8")
-	// 	// if bytesPreSec > 0 {
-	// 	// 	newReader := NewReader(dst)
-	// 	// 	newReader.SetRateLimit(bytesPreSec)
-	// 	// 	_, isSrcErr, err = ioCopy("2", src, []io.Reader{newReader}, func(c int) {
-	// 	// 		cfn(c, true)
-	// 	// 	})
-	// 	// } else {
-	// 	//
-	// 	//
-	// 	// }
-	// 	if err != nil {
-	// 		one.Do(func() {
-	// 			fn(isSrcErr, err)
-	// 		})
-	// 	}
-	// }()
+
 }
 
 func ioCopy(step string, dst io.ReadWriter, srcs []io.ReadWriter, sfn func(io.ReadWriter), fn ...func(count int)) (written int64,
@@ -290,9 +243,6 @@ func ioCopy2(step string, dst io.Writer, src io.Reader) (written int64, isSrcErr
 			break
 		}
 	}
-	// if isSuccess{
-	// 	break
-	// }
 
 	return written, isSrcErr, err
 }
