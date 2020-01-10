@@ -42,28 +42,29 @@ func TCPCallback(inConn net.Conn) {
 func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 	// inAddr := (*inConn).RemoteAddr().String()
 	inLocalAddr := (*inConn).LocalAddr().String()
-	//防止死循环
+	// 防止死循环
 	if IsDeadLoop(inLocalAddr, req.Host) {
 		glob.CloseConn(inConn)
 		err = fmt.Errorf("dead loop detected , %s", req.Host)
 		return
 	}
-	proxys, err := glob.GetProxies(3, nil, proxy.SetPassSites("leisu"))
+	proxies, err := glob.GetProxies(3, nil, proxy.SetPassSites("leisu"))
 	if err != nil {
-		tracer.Errorf("testrp", "get proxy , err:%s", err)
+		tracer.Errorf("testrp", "get p , err:%s", err)
 		glob.CloseConn(inConn)
 		return
 	}
 	var proxyList []string
-	for _, proxy := range proxys {
-		u, err := url.Parse(proxy)
+	for _, p := range proxies {
+		u, err := url.Parse(p)
 		if err != nil {
+			glob.CloseConn(inConn)
 			return err
 		}
 		proxyList = append(proxyList, u.Host)
 	}
 
-	proxyList = append(proxyList, "46.101.79.148:24045")
+	// proxyList = append(proxyList, "46.101.79.148:24045")
 	// proxyList = []string{
 	// 	"46.101.78.176:24045",
 	// 	// "168.149.142.170:8080",
@@ -72,61 +73,43 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 	// , "180.168.13.26:8000"
 	// 67.205.149.230:8080
 	var outConns []net.Conn
-	var outConnsReader []io.ReadWriter
+	var proxyConnsReader []io.ReadWriter
 	tracer.Infof("testrp", "conn %s", proxyList)
 
-	for _, proxy := range proxyList {
+	for _, p := range proxyList {
 		var outConn net.Conn
 
-		outConn, err = net.DialTimeout("tcp", proxy, time.Duration(5)*time.Second)
+		outConn, err = net.DialTimeout("tcp", p, time.Duration(5)*time.Second)
 
 		if err != nil {
-			tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
+			tracer.Errorf("testrp", "connect to %s , err:%s", p, err)
+		} else {
+			outConn.Write(req.HeadBuf)
+			outConns = append(outConns, outConn)
+			proxyConnsReader = append(proxyConnsReader, outConn)
 		}
-		outConn.Write(req.HeadBuf)
-		outConns = append(outConns, outConn)
-		outConnsReader = append(outConnsReader, outConn)
 	}
 
 	if len(outConns) == 0 {
-		tracer.Errorf("testrp", "no proxy can used")
+		glob.CloseConn(inConn)
 		err = errors.New("no proxy can used")
+		tracer.Errorf("testrp", err.Error())
 		return
 	}
 
-	glob.IoBind(*inConn, outConnsReader, func(isSrcErr bool, err error) {
-		if err != nil {
-			// log.Println(err)
-		}
-		// tracer.Infof("testrp", "conn %s - %s - %s -%s released [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr,
-		// 	req.Host)
-		tracer.Infof("testrp", "close")
+	glob.IoBind(*inConn, proxyConnsReader, func(isSrcErr bool, err error) {
 		glob.CloseConn(inConn)
 		for _, outConn := range outConns {
 			glob.CloseConn(&outConn)
 		}
-	}, func(n int, d bool) {}, 0)
-
-	// for _, outConn := range outConns {
-	// 	// var outConn net.Conn
-	// 	// // var _outConn interface{}
-	// 	// outConn, err = net.DialTimeout("tcp", proxy, time.Duration(5)*time.Second)
-	// 	//
-	// 	// // _outConn, err = s.outPool.Pool.Get()
-	// 	// // if err == nil {
-	// 	// // 	outConn = _outConn.(net.Conn)
-	// 	// // }
-	// 	// if err != nil {
-	// 	// 	tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
-	// 	// 	glob.CloseConn(inConn)
-	// 	// 	return
-	// 	// }
-	//
-	// 	// outAddr := outConn.RemoteAddr().String()
-	// 	// outLocalAddr := outConn.LocalAddr().String()
-	//
-	// 	// log.Printf("conn %s - %s - %s - %s connected [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr, req.Host)
-	// }
+		if err != nil {
+			tracer.Errorf("testrp", "conn error: %s", err)
+			return
+		}
+		// tracer.Infof("testrp", "conn %s - %s - %s -%s released [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr,
+		// 	req.Host)
+		// tracer.Infof("testrp", "close")
+	}, func(n int, d bool) {})
 
 	return
 }
