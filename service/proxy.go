@@ -102,7 +102,7 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 		for _, outConn := range outConns {
 			glob.CloseConn(&outConn)
 		}
-		if err != nil {
+		if err != nil && err != io.EOF {
 			tracer.Errorf("testrp", "conn error: %s", err)
 			return
 		}

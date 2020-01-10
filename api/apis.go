@@ -15,7 +15,10 @@ import (
 var Router *gin.Engine
 
 func Init() {
-	Router = gin.Default()
+	Router = gin.New()
+	Router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		Formatter: logFormat,
+	}), gin.Recovery())
 	InitAPIS()
 	InitSubscribe()
 }
