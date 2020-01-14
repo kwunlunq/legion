@@ -16,7 +16,7 @@ require (
 	gitlab.paradise-soft.com.tw/dwh/proxy v1.2.1
 	gitlab.paradise-soft.com.tw/glob/dispatcher v1.11.2
 	gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0
-	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.3
+	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.4
 	gitlab.paradise-soft.com.tw/glob/tracer v1.1.0
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	golang.org/x/sys v0.0.0-20190613124609-5ed2794edfdc // indirect

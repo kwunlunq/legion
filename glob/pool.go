@@ -75,12 +75,15 @@ func (p *pool) RemoveTab(tab *Tab) {
 	defer p.Unlock()
 
 	for _, b := range p.browsers {
-		for i, t := range b.Tabs {
-			if t == tab {
-				b.Tabs = append(b.Tabs[:i], b.Tabs[i+1:]...)
-				return
-			}
+		if _, ok := b.Tabs[tab.ID]; ok {
+			delete(b.Tabs, tab.ID)
 		}
+		// for i, t := range b.Tabs {
+		// 	if t == tab {
+		// 		b.Tabs = append(b.Tabs[:i], b.Tabs[i+1:]...)
+		// 		return
+		// 	}
+		// }
 	}
 }
 

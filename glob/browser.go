@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/chromedp/chromedp"
+	"github.com/google/uuid"
 )
 
 type Browser struct {
@@ -13,7 +14,9 @@ type Browser struct {
 }
 
 func NewBrowser() (*Browser, error) {
-	b := &Browser{}
+	b := &Browser{
+		Tabs: make(Tabs),
+	}
 
 	ctx, _ := chromedp.NewExecAllocator(context.Background(), browserOptions...)
 
@@ -27,11 +30,13 @@ func NewBrowser() (*Browser, error) {
 
 func (b *Browser) NewTab() (*Tab, error) {
 	tab := &Tab{}
+	uid := uuid.New().String()
+	tab.ID = uid
 	tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
 	tab.Context, tab.cancel = context.WithTimeout(tab.orgContext, Config.Chrome.Timeout)
 	if err := chromedp.Run(tab.Context, chromedp.Navigate("about:blank")); err != nil {
 		return nil, err
 	}
-	b.Tabs = append(b.Tabs, tab)
+	b.Tabs[uid] = tab
 	return tab, nil
 }
