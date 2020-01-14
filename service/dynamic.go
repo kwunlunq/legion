@@ -61,8 +61,10 @@ func (r *LegionRequest) doDynamic() (response *network.Response, body []byte, er
 
 	// Todo: err is not handled correctly
 	var tab *glob.Tab
+	tab = glob.Pool.NewTab()
 	for tab == nil {
 		tab = glob.Pool.NewTab()
+		time.Sleep(1 * time.Second)
 	}
 	defer func() {
 		tab.Cancel()

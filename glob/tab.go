@@ -4,14 +4,15 @@ import (
 	"context"
 )
 
-type Tabs []*Tab
+type Tabs map[string]*Tab
 
 type Tab struct {
+	ID         string
 	Context    context.Context
 	cancel     context.CancelFunc
 	orgContext context.Context
 	orgCancel  context.CancelFunc
-	Browser    *Browser
+	// Browser    *Browser
 }
 
 func (t *Tab) Cancel() {
