@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/DeanThompson/ginpprof"
 	"github.com/gin-gonic/gin"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
@@ -16,6 +17,8 @@ var Router *gin.Engine
 
 func Init() {
 	Router = gin.New()
+	ginpprof.Wrapper(Router)
+
 	Router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
 		Formatter: logFormat,
 	}), gin.Recovery())
