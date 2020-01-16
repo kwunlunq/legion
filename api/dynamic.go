@@ -103,6 +103,11 @@ func dynamicScrapeAPI(ctx *gin.Context) {
 	}
 
 	legionResp := legionReq.GetDynamicResult()
+
+	if legionResp.Response != nil && legionResp.Response.Body != nil {
+		legionResp.Response.BodyString = string(legionResp.Response.Body)
+	}
+
 	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 
