@@ -63,7 +63,7 @@ func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err erro
 	// }
 	var outConns []net.Conn
 	var proxyConnsReader []io.ReadWriter
-	tracer.Tracef("testrp", "conn %s", proxyList)
+	tracer.Infof("testrp", "conn %s", proxyList)
 
 	for _, p := range proxyList {
 		outConn, connErr := net.DialTimeout("tcp", p, time.Duration(5)*time.Second)
