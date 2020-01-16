@@ -7,6 +7,7 @@ go 1.12
 //replace gitlab.paradise-soft.com.tw/glob/gorequest => /Users/george_liu/Desktop/golang/common/gorequest
 
 require (
+	github.com/DeanThompson/ginpprof v0.0.0-20190408063150-3be636683586
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/chromedp/cdproto v0.0.0-20190614062957-d6d2f92b486d
 	github.com/chromedp/chromedp v0.3.1-0.20190614072529-35b61282746d
