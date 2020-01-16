@@ -9,8 +9,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-
-	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
 type BasicAuth struct {
@@ -100,7 +98,6 @@ func NewHTTPRequest(inConn *net.Conn, bufSize int) (req HTTPRequest, err error) 
 	req.Method = strings.ToUpper(req.Method)
 	// req.isBasicAuth = isBasicAuth
 	// req.basicAuth = basicAuth
-	tracer.Infof("testrp", "%s:%s", req.Method, req.hostOrURL)
 
 	if req.IsHTTPS() {
 		err = req.HTTPS()
@@ -109,6 +106,7 @@ func NewHTTPRequest(inConn *net.Conn, bufSize int) (req HTTPRequest, err error) 
 	}
 	return
 }
+
 func (req *HTTPRequest) HTTP() (err error) {
 	req.URL, err = req.getHTTPURL()
 	if err == nil {
@@ -118,16 +116,19 @@ func (req *HTTPRequest) HTTP() (err error) {
 	}
 	return
 }
+
 func (req *HTTPRequest) HTTPS() (err error) {
 	req.Host = req.hostOrURL
 	req.addPortIfNot()
 	//_, err = fmt.Fprint(*req.conn, "HTTP/1.1 200 Connection established\r\n\r\n")
 	return
 }
+
 func (req *HTTPRequest) HTTPSReply() (err error) {
 	_, err = fmt.Fprint(*req.conn, "HTTP/1.1 200 Connection established\r\n\r\n")
 	return
 }
+
 func (req *HTTPRequest) IsHTTPS() bool {
 	return req.Method == "CONNECT"
 }
