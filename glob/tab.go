@@ -16,10 +16,10 @@ type Tab struct {
 }
 
 func (t *Tab) Cancel() {
-	if t.Context.Err() == nil {
-		t.cancel()
-	}
-	if t.orgContext.Err() == nil {
-		t.orgCancel()
-	}
+	// if t.Context.Err() == nil {
+	t.cancel()
+	// }
+	// if t.orgContext.Err() == nil {
+	t.orgCancel()
+	// }
 }
