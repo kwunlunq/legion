@@ -22,7 +22,11 @@ func initRespCache() {
 }
 
 func (r *respCache) GetStatic(key string) (value interface{}, ok bool) {
-	return r.Map.Load(StaticCacheKeyPrefix + key)
+	value, ok = r.Map.Load(StaticCacheKeyPrefix + key)
+	// if ok {
+	// 	r.Delete(key)
+	// }
+	return
 }
 
 func (r *respCache) SaveStatic(key string, value interface{}) (ok bool) {
