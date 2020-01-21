@@ -25,7 +25,7 @@ func dynamicScrape(data []byte) (err error) {
 
 	now := time.Now()
 	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
-		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
+		err = fmt.Errorf("task expired sent at %v(now: %v)", legionReq.SentAt, now)
 		return
 	}
 
