@@ -2,10 +2,15 @@ package glob
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/google/uuid"
+)
+
+var (
+	port int = 9222
 )
 
 type Browser struct {
@@ -18,8 +23,13 @@ func NewBrowser() (*Browser, error) {
 	b := &Browser{
 		Tabs: make(Tabs),
 	}
-
-	ctx, _ := chromedp.NewExecAllocator(context.Background(), browserOptions...)
+	tmpBrowserOptions := []chromedp.ExecAllocatorOption{
+		chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)),
+	}
+	port++
+	tmpBrowserOptions = append(tmpBrowserOptions, browserOptions...)
+	ctx, _ := chromedp.NewExecAllocator(context.Background(),
+		tmpBrowserOptions...)
 
 	b.Context, b.Cancel = chromedp.NewContext(ctx)
 
