@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ProxyDefaultAliveMinute = 20
+	ProxyDefaultAliveMinute = 5
 )
 
 var ErrCantGetProxy = errors.New("can't get proxy")
