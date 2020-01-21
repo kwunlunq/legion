@@ -28,15 +28,13 @@ func TCPCallback(inConn net.Conn) {
 		glob.CloseConn(&inConn)
 		return
 	}
-	address := req.Host
-	err = OutToTCP(address, &inConn, &req)
+	err = OutToTCP(&inConn, &req)
 	if err != nil {
-		tracer.Errorf("testrp", "connect to %s fail, ERR:%s", address, err)
+		tracer.Errorf("testrp", "connect to %s fail, ERR:%s", req.Host, err)
 		glob.CloseConn(&inConn)
 	}
 }
-func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err error) {
-	// inAddr := (*inConn).RemoteAddr().String()
+func OutToTCP(inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 	inLocalAddr := (*inConn).LocalAddr().String()
 	// 防止死循环
 	if IsDeadLoop(inLocalAddr, req.Host) {

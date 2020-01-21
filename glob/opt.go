@@ -9,6 +9,9 @@ var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.ProxyServer("http://127.0.0.1:8081"),
 	// After Puppeteer's default behavior.
 	chromedp.Flag("disable-background-networking", true),
+	chromedp.Flag("remote-debugging-port", "9222"),
+	// 不loading圖片
+	chromedp.Flag("blink-settings", "imagesEnabled=false"),
 	chromedp.Flag("enable-features", "NetworkService,NetworkServiceInProcess"),
 	chromedp.Flag("disable-background-timer-throttling", true),
 	chromedp.Flag("disable-backgrounding-occluded-windows", true),
