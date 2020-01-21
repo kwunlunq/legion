@@ -2,6 +2,7 @@ package glob
 
 import (
 	"sync"
+	"time"
 
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
@@ -55,14 +56,14 @@ func (p *pool) Fill() {
 	}
 }
 
-func (p *pool) NewTab() *Tab {
+func (p *pool) NewTab(timeout time.Duration) *Tab {
 	p.Lock()
 	defer p.Unlock()
 
 	var tab *Tab
 	for _, b := range p.browsers {
 		if len(b.Tabs) < p.maxTabs {
-			tab, _ = b.NewTab()
+			tab, _ = b.NewTab(timeout)
 			break
 		}
 	}
