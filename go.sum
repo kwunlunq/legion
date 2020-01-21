@@ -267,6 +267,8 @@ gitlab.paradise-soft.com.tw/glob/gorequest v0.0.0-20190826015942-2399ce018ef1 h1
 gitlab.paradise-soft.com.tw/glob/gorequest v0.0.0-20190826015942-2399ce018ef1/go.mod h1:wMDF0nK3dnfqln+KR5WTBPXHS1m2XpgvQCi5KdjQ1PM=
 gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0 h1:85GCpzH6uxZxpbPbSJWLIPWlzS9A4ODrVAg7SRfI290=
 gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0/go.mod h1:wMDF0nK3dnfqln+KR5WTBPXHS1m2XpgvQCi5KdjQ1PM=
+gitlab.paradise-soft.com.tw/glob/helper v0.0.0-20190523032655-2a9a0b97690a h1:O0pPjBaiKJzXSv7KASW8zgZYGM1fJdybfuWhi9TEfOA=
+gitlab.paradise-soft.com.tw/glob/helper v0.0.0-20190523032655-2a9a0b97690a/go.mod h1:U2kjmD064PFDZHlHoSDtSrTogLQOiJsfdHdEmQDK5sM=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.0.0-20191008101920-4690b145ec1c h1:BBTflVeoLMp2YmBVB7LBL8OfR6qNF6A1aZT1voPNMNQ=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.0.0-20191008101920-4690b145ec1c/go.mod h1:o/dsu0JC8GmJIQCefIr61PkUzjpRQF6rg9fvu5hlxgM=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.0.0-20191024021618-267a707e6c0a h1:QONUgHbFW0GDyKh1xzr8rh+FO1gH8zQtb86aV9uugY0=
@@ -287,6 +289,10 @@ gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.6 h1:yxlgi6RgHXxBh5zJVNaLCMdt9v
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.6/go.mod h1:QkNob/ZwdFSoTUgtXxjo/SQuXF2am/7KxH9PGNXi80k=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.7 h1:6a8GMHK1xmMh4UNfemL8dO66acO7Y2GASFGSd10He9M=
 gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.7/go.mod h1:QkNob/ZwdFSoTUgtXxjo/SQuXF2am/7KxH9PGNXi80k=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.8 h1:X95XH8FjdUypwSG6Z1Cf3gnYtT0GXRIRtspoI27M2EI=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.8/go.mod h1:qaJQ8GQIQQYhhlUq9VkmLGS6eycj00JTTGhoEGuKYcg=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.9 h1:nhWt+rL58qQIYD2QIoJ0YJZzqC+9eQkA6Uwpxn5+sZ8=
+gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.9/go.mod h1:qaJQ8GQIQQYhhlUq9VkmLGS6eycj00JTTGhoEGuKYcg=
 gitlab.paradise-soft.com.tw/glob/tracer v1.1.0 h1:KPPJruMf5nS3AJ3tvTRjUWMvlk1i63PCcE9AP1S4Dac=
 gitlab.paradise-soft.com.tw/glob/tracer v1.1.0/go.mod h1:LuMC12pj0pSPPL/Wo8zxIkX6HtLyGgr3/JN17M4am0I=
 gitlab.paradise-soft.com.tw/glob/utils v0.0.0-20190325034131-c2e91646f0da h1:UeRL6WIbC4Hd40/C7AqDODfI3ai/+RDBxWAuWZSJkYQ=
