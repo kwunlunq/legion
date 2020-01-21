@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
@@ -23,7 +24,7 @@ func dynamicScrape(data []byte) (err error) {
 		return
 	}
 
-	now := time.Now()
+	now := helper.Now(8)
 	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
 		err = fmt.Errorf("task expired sent at %v(now: %v)", legionReq.SentAt, now)
 		return

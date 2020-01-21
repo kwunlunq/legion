@@ -8,6 +8,7 @@ import (
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 )
 
@@ -26,7 +27,7 @@ func (r *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
 	}
 
 	legionResp := &LegionResponse{}
-	legionResp.FinishedAt = time.Now()
+	legionResp.FinishedAt = helper.Now(8)
 	legionResp.StatusCode = int(response.Status)
 	legionResp.Header = make(map[string]string, len(response.Headers))
 	for key, val := range response.Headers {

@@ -12,6 +12,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
@@ -22,7 +23,7 @@ func staticScrape(data []byte) (err error) {
 		return
 	}
 
-	now := time.Now()
+	now := helper.Now(8)
 	// 拋棄逾時任務
 	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
 		err = fmt.Errorf("task expired sent at %v(now: %v)", legionReq.SentAt, now)
