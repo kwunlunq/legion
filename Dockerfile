@@ -12,8 +12,11 @@ FROM reg.paradise-soft.com.tw:5000/base-legion:latest
 #    google-chrome-stable \
 #    https://centos7.iuscommunity.org/ius-release.rpm
 
+RUN google-chrome --version
 
 COPY xunya-legion .
+
+RUN ls -l
 
 EXPOSE 9099
 
