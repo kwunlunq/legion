@@ -39,6 +39,6 @@ var browserOptions = []chromedp.ExecAllocatorOption{
 
 func initBrowserOptions() {
 	if Config.Chrome.Headless {
-		// browserOptions = append(browserOptions, chromedp.Headless)
+		browserOptions = append(browserOptions, chromedp.Headless)
 	}
 }
