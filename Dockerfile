@@ -18,6 +18,6 @@ COPY xunya-legion .
 
 RUN ls -l
 
-EXPOSE 9099
+EXPOSE 9099 9222 9223 9224
 
 CMD ["./xunya-legion"]
