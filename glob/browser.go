@@ -25,6 +25,7 @@ func NewBrowser() (*Browser, error) {
 	}
 	tmpBrowserOptions := []chromedp.ExecAllocatorOption{
 		chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)),
+		chromedp.Flag("remote-debugging-address", "0.0.0.0"),
 	}
 	port++
 	tmpBrowserOptions = append(tmpBrowserOptions, browserOptions...)
