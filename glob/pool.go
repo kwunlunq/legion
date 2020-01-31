@@ -63,8 +63,13 @@ func (p *pool) NewTab(timeout time.Duration) *Tab {
 	var tab *Tab
 	for _, b := range p.browsers {
 		if len(b.Tabs) < p.maxTabs {
-			tab, _ = b.NewTab(timeout)
-			break
+			var err error
+			tab, err = b.NewTab(timeout)
+			if err != nil {
+				tracer.Errorf("tab", "create tab error: %s", err)
+				continue
+			}
+			return tab
 		}
 	}
 
