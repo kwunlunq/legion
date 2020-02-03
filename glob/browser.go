@@ -14,23 +14,26 @@ var (
 )
 
 type Browser struct {
-	Context context.Context
-	Cancel  context.CancelFunc
-	Tabs    Tabs
+	Context   context.Context
+	Cancel    context.CancelFunc
+	Tabs      Tabs
+	DebugPort int
+	Options   []chromedp.ExecAllocatorOption
 }
 
 func NewBrowser() (*Browser, error) {
 	b := &Browser{
-		Tabs: make(Tabs),
+		Tabs:      make(Tabs),
+		DebugPort: port,
+		Options: []chromedp.ExecAllocatorOption{
+			chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)),
+			chromedp.Flag("remote-debugging-address", "0.0.0.0"),
+		},
 	}
-	tmpBrowserOptions := []chromedp.ExecAllocatorOption{
-		chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)),
-		chromedp.Flag("remote-debugging-address", "0.0.0.0"),
-	}
+
 	port++
-	tmpBrowserOptions = append(tmpBrowserOptions, browserOptions...)
-	ctx, _ := chromedp.NewExecAllocator(context.Background(),
-		tmpBrowserOptions...)
+	b.Options = append(b.Options, browserOptions...)
+	ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
 
 	b.Context, b.Cancel = chromedp.NewContext(ctx)
 
@@ -47,7 +50,17 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	if timeout == 0 {
 		timeout = Config.Chrome.Timeout
 	}
+	if err := b.Context.Err(); err != nil {
+		ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
+
+		b.Context, b.Cancel = chromedp.NewContext(ctx)
+
+		if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
+			return nil, err
+		}
+	}
 	tab.orgContext, tab.orgCancel = context.WithTimeout(b.Context, timeout)
+
 	tab.Context, tab.cancel = chromedp.NewContext(tab.orgContext)
 
 	// tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
