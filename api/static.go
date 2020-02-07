@@ -125,6 +125,6 @@ func getStaticCache(ctx *gin.Context) {
 		responseParamError(ctx, err)
 		return
 	}
-
+	glob.RespCache.DeleteStatic(req.Key)
 	response(ctx, value, 1, glob.ScrapeSuccess, nil)
 }
