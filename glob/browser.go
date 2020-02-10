@@ -7,6 +7,7 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/google/uuid"
+	"golang.org/x/xerrors"
 )
 
 var (
@@ -38,7 +39,7 @@ func NewBrowser() (*Browser, error) {
 	b.Context, b.Cancel = chromedp.NewContext(ctx)
 
 	if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("create browser error: %w", err)
 	}
 	return b, nil
 }
@@ -56,7 +57,7 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 		b.Context, b.Cancel = chromedp.NewContext(ctx)
 
 		if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
-			return nil, err
+			return nil, xerrors.Errorf("create browser error: %w", err)
 		}
 	}
 	tab.orgContext, tab.orgCancel = context.WithTimeout(b.Context, timeout)
@@ -66,7 +67,7 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	// tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
 	// tab.Context, tab.cancel = context.WithTimeout(tab.orgContext, Config.Chrome.Timeout)
 	if err := chromedp.Run(tab.Context, chromedp.Navigate("about:blank")); err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("create tab error: %w", err)
 	}
 	b.Tabs[uid] = tab
 	return tab, nil
