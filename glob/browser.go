@@ -45,23 +45,22 @@ func NewBrowser() (*Browser, error) {
 }
 
 func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
-	tab := &Tab{}
-	uid := uuid.New().String()
-	tab.ID = uid
-	if timeout == 0 {
-		timeout = Config.Chrome.Timeout
-	}
 	if err := b.Context.Err(); err != nil {
 		ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
 
 		b.Context, b.Cancel = chromedp.NewContext(ctx)
 
 		if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
-			return nil, xerrors.Errorf("create browser error: %w", err)
+			return nil, xerrors.Errorf("recreate browser error: %w", err)
 		}
 	}
+	tab := &Tab{}
+	uid := uuid.New().String()
+	tab.ID = uid
+	if timeout == 0 {
+		timeout = Config.Chrome.Timeout
+	}
 	tab.orgContext, tab.orgCancel = context.WithTimeout(b.Context, timeout)
-
 	tab.Context, tab.cancel = chromedp.NewContext(tab.orgContext)
 
 	// tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
