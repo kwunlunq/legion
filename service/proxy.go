@@ -12,6 +12,7 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/proxy/proxy"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
+	"golang.org/x/xerrors"
 )
 
 func TCPCallback(inConn net.Conn) {
@@ -44,8 +45,7 @@ func OutToTCP(inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 	var proxies, proxyList []string
 	proxies, err = glob.GetProxies(3, nil, proxy.SetPassSites("leisu"))
 	if err != nil {
-		tracer.Errorf("testrp", "get p , err:%s", err)
-		return
+		return xerrors.Errorf("get proxy err: %w", err)
 	}
 	for _, p := range proxies {
 		u, err := url.Parse(p)

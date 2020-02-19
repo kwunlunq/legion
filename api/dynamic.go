@@ -18,9 +18,9 @@ import (
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
-func dynamicScrape(data []byte) (err error) {
+func dynamicScrape(msg dispatcher.Message) (err error) {
 	legionReq := &service.LegionRequest{}
-	if err = json.Unmarshal(data, legionReq); err != nil {
+	if err = json.Unmarshal(msg.Value, legionReq); err != nil {
 		return
 	}
 
