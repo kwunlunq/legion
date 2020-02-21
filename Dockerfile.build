@@ -1,26 +1,10 @@
-FROM golang:1.12.1
+FROM reg.paradise-soft.com.tw:5000/base-build-legion:latest
 
 ENV appname=xunya-legion
-ENV GO111MODULE=on
-
-ARG branch
-RUN echo $branch
-
 RUN mkdir /$appname
 WORKDIR /$appname
-RUN ls -l
-
-
-COPY go.mod .
-COPY go.sum .
-
-RUN ls -l
-
-RUN go mod download &&\
-    echo "go mod Completed"
 
 COPY . .
-
 RUN ls -l
 
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $appname &&\

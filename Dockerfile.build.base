@@ -1,0 +1,20 @@
+FROM golang:1.12.1 AS builder
+
+ENV appname=base-neptune
+ENV GO111MODULE=on
+
+ARG branch
+RUN echo $branch
+
+RUN mkdir /$appname
+WORKDIR /$appname
+RUN ls -l
+
+
+COPY go.mod .
+COPY go.sum .
+
+RUN ls -l
+
+RUN go mod download &&\
+    echo "go mod Completed"
