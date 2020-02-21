@@ -165,7 +165,7 @@ func chromeTask(chromeContext context.Context, url string, response *network.Res
 	chromedp.ListenTarget(chromeContext, func(event interface{}) {
 		switch responseReceivedEvent := event.(type) {
 		case *network.EventResponseReceived:
-			if responseReceivedEvent.Response.URL == "https://www.qidian.com/rank/yuepiao?style=2&page=1" {
+			if responseReceivedEvent.Response.URL == url {
 				*response = *(responseReceivedEvent.Response)
 			}
 		}
