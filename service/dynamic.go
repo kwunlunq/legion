@@ -33,6 +33,10 @@ func (r *LegionRequest) GetDynamicResult() (legionResult *LegionResult) {
 	for key, val := range response.Headers {
 		legionResp.Header[key] = fmt.Sprintf("%v", val)
 	}
+	legionResp.RequestHeader = make(map[string]string, len(response.RequestHeaders))
+	for key, val := range response.RequestHeaders {
+		legionResp.RequestHeader[key] = fmt.Sprintf("%v", val)
+	}
 	legionResp.Body = body
 	legionResult.Response = (*sdk.LegionResponse)(legionResp)
 	return
@@ -145,6 +149,9 @@ func (req *DynamicRequest) makeTasks(steps []*sdk.Step) (chromedp.Tasks, error) 
 				continue
 			}
 			tasks = append(tasks, chromedp.Sleep(d))
+		case sdk.Reload:
+			tasks = append(tasks, chromedp.Reload())
+
 		default:
 			err = fmt.Errorf(`Unsupported step action "%s"`, step.Action)
 			return nil, err
@@ -158,7 +165,7 @@ func chromeTask(chromeContext context.Context, url string, response *network.Res
 	chromedp.ListenTarget(chromeContext, func(event interface{}) {
 		switch responseReceivedEvent := event.(type) {
 		case *network.EventResponseReceived:
-			if responseReceivedEvent.Response.URL == url {
+			if responseReceivedEvent.Response.URL == "https://www.qidian.com/rank/yuepiao?style=2&page=1" {
 				*response = *(responseReceivedEvent.Response)
 			}
 		}
