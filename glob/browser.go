@@ -3,6 +3,7 @@ package glob
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -36,7 +37,7 @@ func NewBrowser() (*Browser, error) {
 	b.Options = append(b.Options, browserOptions...)
 	ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
 
-	b.Context, b.Cancel = chromedp.NewContext(ctx)
+	b.Context, b.Cancel = chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
 
 	if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
 		return nil, xerrors.Errorf("create browser error: %w", err)
@@ -48,7 +49,7 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	if err := b.Context.Err(); err != nil {
 		ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
 
-		b.Context, b.Cancel = chromedp.NewContext(ctx)
+		b.Context, b.Cancel = chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
 
 		if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
 			return nil, xerrors.Errorf("recreate browser error: %w", err)
