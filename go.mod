@@ -18,7 +18,7 @@ require (
 	gitlab.paradise-soft.com.tw/glob/dispatcher v1.13.1
 	gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0
 	gitlab.paradise-soft.com.tw/glob/helper v0.0.0-20190523032655-2a9a0b97690a
-	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.12
+	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.13
 	gitlab.paradise-soft.com.tw/glob/tracer v1.1.0
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	golang.org/x/sys v0.0.0-20200116001909-b77594299b42 // indirect
