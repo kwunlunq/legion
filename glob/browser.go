@@ -16,14 +16,15 @@ var (
 )
 
 type Browser struct {
-	Context   context.Context
-	Cancel    context.CancelFunc
-	Tabs      Tabs
-	DebugPort int
-	Options   []chromedp.ExecAllocatorOption
+	Context    context.Context
+	Cancel     context.CancelFunc
+	Tabs       Tabs
+	DebugPort  int
+	Options    []chromedp.ExecAllocatorOption
+	IsUseProxy bool
 }
 
-func NewBrowser() (*Browser, error) {
+func NewBrowser(opts ...BrowserOption) (*Browser, error) {
 	b := &Browser{
 		Tabs:      make(Tabs),
 		DebugPort: port,
@@ -35,6 +36,14 @@ func NewBrowser() (*Browser, error) {
 
 	port++
 	b.Options = append(b.Options, browserOptions...)
+
+	for _, opt := range opts {
+		err := opt(b)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
 
 	b.Context, b.Cancel = chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
@@ -71,4 +80,16 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	}
 	b.Tabs[uid] = tab
 	return tab, nil
+}
+
+type BrowserOption func(c *Browser) error
+
+func SetUseProxy(isUse bool) BrowserOption {
+	return func(c *Browser) error {
+		c.IsUseProxy = isUse
+		if isUse {
+			c.Options = append(c.Options, chromedp.ProxyServer("http://127.0.0.1:8081"))
+		}
+		return nil
+	}
 }
