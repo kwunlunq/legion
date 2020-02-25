@@ -68,9 +68,9 @@ func (r *LegionRequest) doDynamic() (response *network.Response, body []byte, co
 
 	// Todo: err is not handled correctly
 	var tab *glob.Tab
-	tab = glob.Pool.NewTab(r.Timeout)
+	tab = glob.Pool.NewTab(len(r.ProxyLocations) > 0, r.Timeout)
 	for tab == nil {
-		tab = glob.Pool.NewTab(r.Timeout)
+		tab = glob.Pool.NewTab(len(r.ProxyLocations) > 0, r.Timeout)
 		time.Sleep(1 * time.Second)
 	}
 	defer func() {
