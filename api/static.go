@@ -12,20 +12,21 @@ import (
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
-func staticScrape(data []byte) (err error) {
+func staticScrape(msg dispatcher.Message) (err error) {
 	legionReq := &service.LegionRequest{}
-	if err = json.Unmarshal(data, legionReq); err != nil {
+	if err = json.Unmarshal(msg.Value, legionReq); err != nil {
 		tracer.Errorf("staticScrape", "%v", err)
 		return
 	}
 
-	now := time.Now()
+	now := helper.Now(8)
 	// 拋棄逾時任務
-	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
-		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
+	if legionReq.SentAt.IsZero() || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
+		err = fmt.Errorf("task expired sent at %v(now: %v)", legionReq.SentAt, now)
 		tracer.Errorf("staticScrape", "%v", err)
 		return
 	}
@@ -124,6 +125,6 @@ func getStaticCache(ctx *gin.Context) {
 		responseParamError(ctx, err)
 		return
 	}
-
+	glob.RespCache.DeleteStatic(req.Key)
 	response(ctx, value, 1, glob.ScrapeSuccess, nil)
 }

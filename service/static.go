@@ -5,9 +5,10 @@ import (
 	"crypto/tls"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	proxytool "gitlab.paradise-soft.com.tw/dwh/proxy/proxy"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/glob/gorequest"
@@ -38,7 +39,7 @@ func (r *LegionRequest) GetStaticResult() (legionResult *LegionResult) {
 	}
 
 	legionResp := &LegionResponse{}
-	legionResp.FinishedAt = time.Now()
+	legionResp.FinishedAt = helper.Now(8)
 	legionResp.StatusCode = resp.StatusCode
 	legionResp.Header = make(map[string]string, len(resp.Header))
 	for key, val := range resp.Header {
@@ -83,9 +84,19 @@ func (r *LegionRequest) toGoRequest() (goReq *gorequest.SuperAgent, err error) {
 		goReq.Timeout(glob.Config.GoRequest.Timeout)
 	}
 
+	var proxies []string
+	var collectors []func(*proxytool.Collector)
+
+	if len(r.ProxyPassSites) > 0 {
+		collectors = append(collectors, proxytool.SetPassSites(r.ProxyPassSites...))
+	}
+
 	if len(r.ProxyLocations) > 0 {
-		var proxies []string
-		proxies, err = glob.GetProxies(len(r.ProxyLocations), r.ProxyLocations)
+		if r.ProxyLocations[0] == "ALL" {
+			proxies, err = glob.GetProxies(5, nil, collectors...)
+		} else {
+			proxies, err = glob.GetProxies(5, r.ProxyLocations, collectors...)
+		}
 		if err != nil {
 			return nil, err
 		}

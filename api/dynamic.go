@@ -11,21 +11,22 @@ import (
 	"github.com/google/uuid"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/dwh/legion/service"
+	"gitlab.paradise-soft.com.tw/glob/helper"
 	sdk "gitlab.paradise-soft.com.tw/glob/legion-sdk"
 
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
 
-func dynamicScrape(data []byte) (err error) {
+func dynamicScrape(msg dispatcher.Message) (err error) {
 	legionReq := &service.LegionRequest{}
-	if err = json.Unmarshal(data, legionReq); err != nil {
+	if err = json.Unmarshal(msg.Value, legionReq); err != nil {
 		return
 	}
 
-	now := time.Now()
-	if legionReq.SentAt.IsZero() || legionReq.SentAt.After(now) || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
-		err = fmt.Errorf("task expired sent at %v", legionReq.SentAt)
+	now := helper.Now(8)
+	if legionReq.SentAt.IsZero() || legionReq.SentAt.Add(service.ExpiredTime).Before(now) {
+		err = fmt.Errorf("task expired sent at %v(now: %v)", legionReq.SentAt, now)
 		return
 	}
 
@@ -103,6 +104,11 @@ func dynamicScrapeAPI(ctx *gin.Context) {
 	}
 
 	legionResp := legionReq.GetDynamicResult()
+
+	if legionResp.Response != nil && legionResp.Response.Body != nil {
+		legionResp.Response.BodyString = string(legionResp.Response.Body)
+	}
+
 	response(ctx, legionResp, 1, glob.ScrapeSuccess, nil)
 }
 

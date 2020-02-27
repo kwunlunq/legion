@@ -6,9 +6,12 @@ var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.NoFirstRun,
 	chromedp.NoDefaultBrowserCheck,
 	chromedp.DisableGPU,
-	chromedp.ProxyServer("http://127.0.0.1:8081"),
 	// After Puppeteer's default behavior.
 	chromedp.Flag("disable-background-networking", true),
+	chromedp.Flag("disable-web-security", true),
+
+	// 不loading圖片
+	chromedp.Flag("blink-settings", "imagesEnabled=false"),
 	chromedp.Flag("enable-features", "NetworkService,NetworkServiceInProcess"),
 	chromedp.Flag("disable-background-timer-throttling", true),
 	chromedp.Flag("disable-backgrounding-occluded-windows", true),
@@ -31,6 +34,7 @@ var browserOptions = []chromedp.ExecAllocatorOption{
 	chromedp.Flag("password-store", "basic"),
 	chromedp.Flag("use-mock-keychain", true),
 	chromedp.Flag("no-sandbox", true),
+	chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36`),
 }
 
 func initBrowserOptions() {

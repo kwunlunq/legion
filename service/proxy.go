@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -9,7 +10,9 @@ import (
 	"time"
 
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
+	"gitlab.paradise-soft.com.tw/dwh/proxy/proxy"
 	"gitlab.paradise-soft.com.tw/glob/tracer"
+	"golang.org/x/xerrors"
 )
 
 func TCPCallback(inConn net.Conn) {
@@ -26,69 +29,68 @@ func TCPCallback(inConn net.Conn) {
 		glob.CloseConn(&inConn)
 		return
 	}
-	address := req.Host
-
-	tracer.Infof("testrp", "use proxy : %s", address)
-	//os.Exit(0)
-	err = OutToTCP(address, &inConn, &req)
+	err = OutToTCP(&inConn, &req)
 	if err != nil {
-		tracer.Errorf("testrp", "connect to %s fail, ERR:%s", address, err)
-
+		tracer.Errorf("testrp", "connect to %s fail, ERR:%s", req.Host, err)
 		glob.CloseConn(&inConn)
 	}
 }
-func OutToTCP(address string, inConn *net.Conn, req *glob.HTTPRequest) (err error) {
-	inAddr := (*inConn).RemoteAddr().String()
+func OutToTCP(inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 	inLocalAddr := (*inConn).LocalAddr().String()
-	//防止死循环
+	// 防止死循环
 	if IsDeadLoop(inLocalAddr, req.Host) {
-		glob.CloseConn(inConn)
 		err = fmt.Errorf("dead loop detected , %s", req.Host)
 		return
 	}
-	proxy, err := glob.GetProxy()
+	var proxies, proxyList []string
+	proxies, err = glob.GetProxies(3, nil, proxy.SetPassSites("leisu"))
 	if err != nil {
-		tracer.Errorf("testrp", "get proxy , err:%s", err)
-		glob.CloseConn(inConn)
-		return
+		return xerrors.Errorf("get proxy err: %w", err)
 	}
-	u, err := url.Parse(proxy)
-	if err != nil {
-		return
-	}
-	proxyList := []string{u.Host}
-	// proxyList := []string{"46.101.78.176:24045"}
-
-	for _, proxy := range proxyList {
-		var outConn net.Conn
-		// var _outConn interface{}
-		outConn, err = net.DialTimeout("tcp", proxy, time.Duration(5)*time.Second)
-
-		// _outConn, err = s.outPool.Pool.Get()
-		// if err == nil {
-		// 	outConn = _outConn.(net.Conn)
-		// }
+	for _, p := range proxies {
+		u, err := url.Parse(p)
 		if err != nil {
-			tracer.Errorf("testrp", "connect to %s , err:%s", proxy, err)
-			glob.CloseConn(inConn)
+			return err
+		}
+		proxyList = append(proxyList, u.Host)
+	}
+
+	// proxyList = append(proxyList, "46.101.79.148:24045")
+	// proxyList = []string{
+	// 	"46.101.78.176:24045",
+	// }
+	var outConns []net.Conn
+	var proxyConnsReader []io.ReadWriter
+	tracer.Infof("testrp", "conn %s", proxyList)
+
+	for _, p := range proxyList {
+		outConn, connErr := net.DialTimeout("tcp", p, time.Duration(5)*time.Second)
+
+		if connErr != nil {
+			tracer.Errorf("testrp", "connect to %s , err:%s", p, connErr)
+		} else {
+			outConn.Write(req.HeadBuf)
+			outConns = append(outConns, outConn)
+			proxyConnsReader = append(proxyConnsReader, outConn)
+		}
+	}
+
+	if len(outConns) == 0 {
+		err = errors.New("no proxy can used")
+		tracer.Errorf("testrp", err.Error())
+		return
+	}
+
+	glob.IoBind(*inConn, proxyConnsReader, func(isSrcErr bool, err error) {
+		glob.CloseConn(inConn)
+		for _, outConn := range outConns {
+			glob.CloseConn(&outConn)
+		}
+		if err != nil && err != io.EOF {
+			tracer.Errorf("testrp", "conn error: %s", err)
 			return
 		}
-
-		outAddr := outConn.RemoteAddr().String()
-		outLocalAddr := outConn.LocalAddr().String()
-
-		outConn.Write(req.HeadBuf)
-		glob.IoBind(*inConn, outConn, func(isSrcErr bool, err error) {
-			if err != nil {
-				// log.Println(err)
-			}
-			tracer.Infof("testrp", "conn %s - %s - %s -%s released [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr,
-				req.Host)
-			glob.CloseConn(inConn)
-			glob.CloseConn(&outConn)
-		}, func(n int, d bool) {}, 0)
-		// log.Printf("conn %s - %s - %s - %s connected [%s]", inAddr, inLocalAddr, outLocalAddr, outAddr, req.Host)
-	}
+	}, func(n int, d bool) {})
 
 	return
 }

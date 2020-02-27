@@ -1,0 +1,11 @@
+FROM reg.paradise-soft.com.tw:5000/base-build-legion:latest
+
+ENV appname=xunya-legion
+RUN mkdir /$appname
+WORKDIR /$appname
+
+COPY . .
+RUN ls -l
+
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $appname &&\
+    ls -l

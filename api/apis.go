@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/DeanThompson/ginpprof"
 	"github.com/gin-gonic/gin"
 	"gitlab.paradise-soft.com.tw/dwh/legion/glob"
 	"gitlab.paradise-soft.com.tw/glob/dispatcher"
@@ -15,7 +16,12 @@ import (
 var Router *gin.Engine
 
 func Init() {
-	Router = gin.Default()
+	Router = gin.New()
+	ginpprof.Wrapper(Router)
+
+	Router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		Formatter: logFormat,
+	}), gin.Recovery())
 	InitAPIS()
 	InitSubscribe()
 }
@@ -47,13 +53,14 @@ func InitSubscribe() {
 	go func() {
 		eg, _ := errgroup.WithContext(context.Background())
 		eg.Go(func() (err error) {
-			err = dispatcher.SubscribeWithRetry(glob.Config.Dispatcher.DynamicTopic,
+			subscriberCtrl := dispatcher.SubscribeWithRetryMessage(glob.Config.Dispatcher.DynamicTopic,
 				dynamicScrape,
 				10,
 				getFailRetryDuration,
 				dispatcher.ConsumerOmitOldMsg(),
 				dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.DynamicAsyncNum),
 			)
+			err = <-subscriberCtrl.Errors()
 			if err != nil {
 				tracer.Errorf("dispatcher", "dynamic scrape: %v", err)
 			}
@@ -61,13 +68,14 @@ func InitSubscribe() {
 		})
 
 		eg.Go(func() (err error) {
-			err = dispatcher.SubscribeWithRetry(glob.Config.Dispatcher.StaticTopic,
+			subscriberCtrl := dispatcher.SubscribeWithRetryMessage(glob.Config.Dispatcher.StaticTopic,
 				staticScrape,
 				10,
 				getFailRetryDuration,
 				dispatcher.ConsumerOmitOldMsg(),
 				dispatcher.ConsumerSetAsyncNum(glob.Config.Dispatcher.StaticAsyncNum),
 			)
+			err = <-subscriberCtrl.Errors()
 			if err != nil {
 				tracer.Errorf("dispatcher", "static scrape: %v", err)
 			}

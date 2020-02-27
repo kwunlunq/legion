@@ -2,6 +2,7 @@ package glob
 
 import (
 	"sync"
+	"time"
 
 	"gitlab.paradise-soft.com.tw/glob/tracer"
 )
@@ -40,31 +41,45 @@ func (p *pool) Fill() {
 	defer p.Unlock()
 
 	retryCount := 0
+
 	for len(p.browsers) < p.maxBrowsers {
 		if retryCount > p.maxRetryCount {
 			return
 		}
-
-		b, err := NewBrowser()
+		var browser *Browser
+		var err error
+		if len(p.browsers) == 0 {
+			browser, err = NewBrowser(SetUseProxy(false))
+		} else {
+			browser, err = NewBrowser(SetUseProxy(true))
+		}
 		if err != nil {
 			retryCount++
 			tracer.Error("NewBrowser", err)
 			continue
 		}
-		p.browsers = append(p.browsers, b)
+		p.browsers = append(p.browsers, browser)
 	}
 }
 
-func (p *pool) NewTab() *Tab {
+func (p *pool) NewTab(isUseProxy bool, timeout time.Duration) *Tab {
 	p.Lock()
 	defer p.Unlock()
 
 	var tab *Tab
 	for _, b := range p.browsers {
-		if len(b.Tabs) < p.maxTabs {
-			tab, _ = b.NewTab()
-			break
+		if isUseProxy == b.IsUseProxy {
+			if len(b.Tabs) < p.maxTabs {
+				var err error
+				tab, err = b.NewTab(timeout)
+				if err != nil {
+					tracer.Errorf("tab", "create tab error: %s", err)
+					continue
+				}
+				return tab
+			}
 		}
+
 	}
 
 	return tab
@@ -75,12 +90,15 @@ func (p *pool) RemoveTab(tab *Tab) {
 	defer p.Unlock()
 
 	for _, b := range p.browsers {
-		for i, t := range b.Tabs {
-			if t == tab {
-				b.Tabs = append(b.Tabs[:i], b.Tabs[i+1:]...)
-				return
-			}
+		if _, ok := b.Tabs[tab.ID]; ok {
+			delete(b.Tabs, tab.ID)
 		}
+		// for i, t := range b.Tabs {
+		// 	if t == tab {
+		// 		b.Tabs = append(b.Tabs[:i], b.Tabs[i+1:]...)
+		// 		return
+		// 	}
+		// }
 	}
 }
 
