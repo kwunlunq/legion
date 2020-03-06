@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gitlab.paradise-soft.com.tw/glob/tracer"
+	"golang.org/x/xerrors"
 )
 
 var (
@@ -41,6 +42,7 @@ func (p *pool) Fill() {
 	defer p.Unlock()
 
 	retryCount := 0
+	port := 9222
 
 	for len(p.browsers) < p.maxBrowsers {
 		if retryCount > p.maxRetryCount {
@@ -49,9 +51,9 @@ func (p *pool) Fill() {
 		var browser *Browser
 		var err error
 		if len(p.browsers) == 0 {
-			browser, err = NewBrowser(SetUseProxy(false))
+			browser, err = NewBrowser(SetUseProxy(false), SetRemoteDebugging(port))
 		} else {
-			browser, err = NewBrowser(SetUseProxy(true))
+			browser, err = NewBrowser(SetUseProxy(true), SetRemoteDebugging(port))
 		}
 		if err != nil {
 			retryCount++
@@ -59,6 +61,7 @@ func (p *pool) Fill() {
 			continue
 		}
 		p.browsers = append(p.browsers, browser)
+		port++
 	}
 }
 
@@ -67,13 +70,17 @@ func (p *pool) NewTab(isUseProxy bool, timeout time.Duration) *Tab {
 	defer p.Unlock()
 
 	var tab *Tab
-	for _, b := range p.browsers {
+	for i, b := range p.browsers {
 		if isUseProxy == b.IsUseProxy {
 			if len(b.Tabs) < p.maxTabs {
 				var err error
 				tab, err = b.NewTab(timeout)
 				if err != nil {
 					tracer.Errorf("tab", "create tab error: %s", err)
+					if xerrors.Is(err, ErrorBrowserContext) || xerrors.Is(err, ErrorTabContext) {
+						b.Cancel()
+						p.browsers[i], err = NewBrowser(SetUseProxy(b.IsUseProxy), SetRemoteDebugging(b.DebugPort))
+					}
 					continue
 				}
 				return tab

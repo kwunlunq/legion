@@ -2,6 +2,7 @@ package glob
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -12,7 +13,8 @@ import (
 )
 
 var (
-	port int = 9222
+	ErrorBrowserContext = errors.New("browser ctx error")
+	ErrorTabContext     = errors.New("tab ctx error")
 )
 
 type Browser struct {
@@ -26,15 +28,10 @@ type Browser struct {
 
 func NewBrowser(opts ...BrowserOption) (*Browser, error) {
 	b := &Browser{
-		Tabs:      make(Tabs),
-		DebugPort: port,
-		Options: []chromedp.ExecAllocatorOption{
-			chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)),
-			chromedp.Flag("remote-debugging-address", "0.0.0.0"),
-		},
+		Tabs:    make(Tabs),
+		Options: []chromedp.ExecAllocatorOption{},
 	}
 
-	port++
 	b.Options = append(b.Options, browserOptions...)
 
 	for _, opt := range opts {
@@ -56,13 +53,17 @@ func NewBrowser(opts ...BrowserOption) (*Browser, error) {
 
 func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	if err := b.Context.Err(); err != nil {
-		ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
-
-		b.Context, b.Cancel = chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
-
-		if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
-			return nil, xerrors.Errorf("recreate browser error: %w", err)
-		}
+		err = xerrors.Errorf("err: %w, %s", ErrorBrowserContext, err)
+		return nil, err
+		// browser, err = NewBrowser(SetUseProxy(false), SetRemoteDebugging(port))
+		//
+		// ctx, _ := chromedp.NewExecAllocator(context.Background(), b.Options...)
+		//
+		// b.Context, b.Cancel = chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
+		//
+		// if err := chromedp.Run(b.Context, chromedp.Navigate("about:blank")); err != nil {
+		// 	return nil, xerrors.Errorf("recreate browser error: %w", err)
+		// }
 	}
 	tab := &Tab{}
 	uid := uuid.New().String()
@@ -76,7 +77,8 @@ func (b *Browser) NewTab(timeout time.Duration) (*Tab, error) {
 	// tab.orgContext, tab.orgCancel = chromedp.NewContext(b.Context)
 	// tab.Context, tab.cancel = context.WithTimeout(tab.orgContext, Config.Chrome.Timeout)
 	if err := chromedp.Run(tab.Context, chromedp.Navigate("about:blank")); err != nil {
-		return nil, xerrors.Errorf("create tab error: %w", err)
+		err = xerrors.Errorf("err: %w, %s", ErrorTabContext, err)
+		return nil, err
 	}
 	b.Tabs[uid] = tab
 	return tab, nil
@@ -90,6 +92,15 @@ func SetUseProxy(isUse bool) BrowserOption {
 		if isUse {
 			c.Options = append(c.Options, chromedp.ProxyServer("http://127.0.0.1:8081"))
 		}
+		return nil
+	}
+}
+
+func SetRemoteDebugging(port int) BrowserOption {
+	return func(c *Browser) error {
+		c.DebugPort = port
+		c.Options = append(c.Options, chromedp.Flag("remote-debugging-port", fmt.Sprintf("%d", port)))
+		c.Options = append(c.Options, chromedp.Flag("remote-debugging-address", "0.0.0.0"))
 		return nil
 	}
 }

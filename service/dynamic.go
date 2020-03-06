@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -67,11 +68,17 @@ func (r *LegionRequest) doDynamic() (response *network.Response, body []byte, co
 	}
 
 	// Todo: err is not handled correctly
+	retryCount := 0
 	var tab *glob.Tab
 	tab = glob.Pool.NewTab(len(r.ProxyLocations) > 0, r.Timeout)
-	for tab == nil {
+	for tab == nil && retryCount < 5 {
 		tab = glob.Pool.NewTab(len(r.ProxyLocations) > 0, r.Timeout)
+		retryCount++
 		time.Sleep(1 * time.Second)
+	}
+	if tab == nil {
+		err = errors.New("create tab error")
+		return
 	}
 	defer func() {
 		tab.Cancel()
