@@ -66,9 +66,7 @@ func OutToTCP(inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 	for _, p := range proxyList {
 		outConn, connErr := net.DialTimeout("tcp", p, time.Duration(5)*time.Second)
 
-		if connErr != nil {
-			tracer.Errorf("testrp", "connect to %s , err:%s", p, connErr)
-		} else {
+		if connErr == nil {
 			outConn.Write(req.HeadBuf)
 			outConns = append(outConns, outConn)
 			proxyConnsReader = append(proxyConnsReader, outConn)
@@ -77,7 +75,6 @@ func OutToTCP(inConn *net.Conn, req *glob.HTTPRequest) (err error) {
 
 	if len(outConns) == 0 {
 		err = errors.New("no proxy can used")
-		tracer.Errorf("testrp", err.Error())
 		return
 	}
 

@@ -15,14 +15,14 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/spf13/viper v1.4.0
 	gitlab.paradise-soft.com.tw/dwh/proxy v1.2.1
-	gitlab.paradise-soft.com.tw/glob/dispatcher v1.13.1
+	gitlab.paradise-soft.com.tw/glob/dispatcher v1.13.3
 	gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0
 	gitlab.paradise-soft.com.tw/glob/helper v0.0.0-20190523032655-2a9a0b97690a
-	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.13
+	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.14
 	gitlab.paradise-soft.com.tw/glob/tracer v1.1.0
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	golang.org/x/sys v0.0.0-20200116001909-b77594299b42 // indirect
-	golang.org/x/text v0.3.0
+	golang.org/x/text v0.3.2
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 )
