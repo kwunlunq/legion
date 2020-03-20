@@ -15,10 +15,10 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/spf13/viper v1.4.0
 	gitlab.paradise-soft.com.tw/dwh/proxy v1.2.1
-	gitlab.paradise-soft.com.tw/glob/dispatcher v1.13.3
+	gitlab.paradise-soft.com.tw/glob/dispatcher v1.13.4-0.20200320105200-adbd6d0f222f
 	gitlab.paradise-soft.com.tw/glob/gorequest v0.1.0
 	gitlab.paradise-soft.com.tw/glob/helper v0.0.0-20190523032655-2a9a0b97690a
-	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.1.14
+	gitlab.paradise-soft.com.tw/glob/legion-sdk v0.0.2-0.20200320105648-b73a68a1ee65
 	gitlab.paradise-soft.com.tw/glob/tracer v1.1.0
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	golang.org/x/sys v0.0.0-20200116001909-b77594299b42 // indirect
